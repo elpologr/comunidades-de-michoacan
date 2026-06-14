@@ -1213,7 +1213,7 @@ mostrarSeccion = function(id, btn) {
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     document.getElementById('sec-' + id).classList.add('visible');
     btn.classList.add('active');
-    if (id === 'cv' && !_noticiasYaCargadas) {
+    if (id === 'noticias' && !_noticiasYaCargadas) {
         _noticiasYaCargadas = true;
         cargarNoticias();
     }
