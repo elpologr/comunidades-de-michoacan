@@ -752,6 +752,28 @@
         .btn-google-auth:hover { background: #f5f8ff; border-color: #4285F4; box-shadow: 0 4px 14px rgba(66,133,244,0.18); }
         body.dark .btn-google-auth { background: #1a2a40; border-color: #2a3a5a; color: #c8ddf8; }
         .modal-auth-nota { font-size: 11px; color: #bbb; margin-top: 16px; }
+        .modal-auth-separador {
+            display: flex; align-items: center; gap: 10px;
+            margin: 14px 0;
+            color: #bbb; font-size: 12px;
+        }
+        .modal-auth-separador::before,
+        .modal-auth-separador::after {
+            content: ''; flex: 1;
+            height: 1px; background: #e0e0e0;
+        }
+        body.dark .modal-auth-separador::before,
+        body.dark .modal-auth-separador::after { background: #2a3a5a; }
+        .btn-facebook-auth {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 14px 20px; border-radius: 12px;
+            border: 2px solid #1877F2; background: #1877F2;
+            font-size: 15px; font-weight: 700; color: #fff; cursor: pointer;
+            transition: all 0.2s; box-shadow: 0 2px 8px rgba(24,119,242,0.18);
+        }
+        .btn-facebook-auth:hover { background: #1464d8; border-color: #1464d8; box-shadow: 0 4px 14px rgba(24,119,242,0.32); }
+        body.dark .btn-facebook-auth { background: #1a3a6a; border-color: #1877F2; color: #c8ddf8; }
+        body.dark .btn-facebook-auth:hover { background: #1877F2; color: #fff; }
 
         /* ─── TOAST ─── */
         #toast {
@@ -1576,6 +1598,13 @@ function copiarLinkDirecto() {
             </svg>
             Continuar con Google
         </button>
+        <div class="modal-auth-separador">o</div>
+        <button class="btn-facebook-auth" onclick="iniciarSesionFacebook()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+            Continuar con Facebook
+        </button>
         <p class="modal-auth-nota">Al continuar aceptas los términos de uso</p>
     </div>
 </div>
@@ -1584,7 +1613,7 @@ function copiarLinkDirecto() {
 <script type="module">
 import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics }                         from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider,
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider,
          signInWithPopup, signInWithRedirect,
          getRedirectResult, signOut,
          onAuthStateChanged }                   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1603,7 +1632,8 @@ const firebaseConfig = {
 const app            = initializeApp(firebaseConfig);
 const analytics      = getAnalytics(app);
 const auth           = getAuth(app);
-const providerGoogle = new GoogleAuthProvider();
+const providerGoogle   = new GoogleAuthProvider();
+const providerFacebook = new FacebookAuthProvider();
 
 // ─── EMAIL DEL ADMINISTRADOR ───
 // ⚠️ Cambia esto por el email de tu cuenta de Google con la que inicias sesión
@@ -1653,6 +1683,38 @@ async function iniciarSesionGoogle() {
     }
 }
 window.iniciarSesionGoogle = iniciarSesionGoogle;
+
+// ─── INICIAR SESIÓN CON FACEBOOK ───
+async function iniciarSesionFacebook() {
+    try {
+        await signInWithPopup(auth, providerFacebook);
+        cerrarModalGoogle();
+        cerrarDrawer();
+    } catch (e) {
+        console.error('[Auth Facebook]', e.code, e.message);
+        if (['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) {
+            try {
+                mostrarToast('⏳ Redirigiendo para iniciar sesión…');
+                await signInWithRedirect(auth, providerFacebook);
+            } catch (e2) { mostrarToast('No se pudo iniciar sesión. Intenta de nuevo.'); }
+            return;
+        }
+        if (e.code === 'auth/unauthorized-domain') {
+            mostrarToast('❌ Dominio no autorizado. Contacta al administrador.');
+            return;
+        }
+        if (e.code === 'auth/operation-not-allowed') {
+            mostrarToast('❌ Login con Facebook no habilitado. Actívalo en Firebase Console.');
+            return;
+        }
+        if (e.code === 'auth/account-exists-with-different-credential') {
+            mostrarToast('⚠️ Ya existe una cuenta con ese email. Intenta con Google.');
+            return;
+        }
+        mostrarToast('Error al iniciar sesión (' + (e.code || 'desconocido') + ')');
+    }
+}
+window.iniciarSesionFacebook = iniciarSesionFacebook;
 
 // ─── MANEJAR REDIRECT (móvil / Safari) ───
 getRedirectResult(auth).then(result => {
