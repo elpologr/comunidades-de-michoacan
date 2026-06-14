@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidades de Michoacán</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ─── VARIABLES ─── */
+        :root {
+            --bg: #f5f5f0;
+            --surface: #ffffff;
+            --border: #e0ddd6;
+            --text: #1a1a1a;
+            --text-soft: #666660;
+            --accent: #1a1a1a;
+            --accent2: #c8a96e;
+            --drawer-w: 280px;
+            --header-h: 220px;
+        }
+        body.dark {
+            --bg: #111110;
+            --surface: #1c1c1a;
+            --border: #2e2e2a;
+            --text: #f0ede8;
+            --text-soft: #888880;
+            --accent: #f0ede8;
+            --accent2: #c8a96e;
+        }
+
+        /* ─── RESET ─── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.35s, color 0.35s;
+            overflow-x: hidden;
+        }
+
+        /* ─── DRAWER OVERLAY ─── */
+        #drawerOverlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 200;
+            backdrop-filter: blur(2px);
+        }
+        #drawerOverlay.open { display: block; }
+
+        /* ─── SIDEBAR DRAWER ─── */
+        #drawer {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--drawer-w);
+            height: 100%;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            z-index: 300;
+            transform: translateX(-100%);
+            transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+        #drawer.open { transform: translateX(0); }
+
+        .drawer-header {
+            background: var(--accent);
+            padding: 40px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        body.dark .drawer-header { background: #000; }
+
+        .drawer-avatar {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            border: 3px solid var(--accent2);
+            object-fit: cover;
+            background: #444;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .drawer-avatar svg { width: 36px; height: 36px; fill: #aaa; }
+
+        .drawer-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        .drawer-email { font-size: 12px; color: rgba(255,255,255,0.55); }
+
+        .drawer-close {
+            position: absolute; top: 14px; right: 14px;
+            background: none; border: none; cursor: pointer;
+            color: rgba(255,255,255,0.6);
+            font-size: 22px; line-height: 1;
+            padding: 4px;
+        }
+        .drawer-close:hover { color: #fff; }
+
+        .drawer-body { flex: 1; padding: 16px 12px; overflow-y: auto; }
+
+        .drawer-section-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            padding: 8px 12px 4px;
+        }
+
+        .drawer-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            transition: background 0.2s;
+            border: none; background: none; width: 100%; text-align: left;
+        }
+        .drawer-item:hover { background: var(--border); }
+        .drawer-item svg { flex-shrink: 0; opacity: 0.7; }
+
+        .drawer-divider {
+            height: 1px; background: var(--border);
+            margin: 8px 14px;
+        }
+
+        /* Toggle switch */
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px;
+            font-size: 14px; font-weight: 500;
+            color: var(--text);
+        }
+        .toggle-row span { display: flex; align-items: center; gap: 12px; }
+        .toggle {
+            width: 42px; height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.25s;
+            flex-shrink: 0;
+        }
+        .toggle.on { background: var(--accent2); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 18px; height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: left 0.25s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        }
+        .toggle.on::after { left: 21px; }
+
+        /* ─── HEADER / BANNER ─── */
+        header {
+            background: linear-gradient(160deg, #0a1628 0%, #0d2044 40%, #102a58 70%, #0a1628 100%);
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Líneas horizontales tipo señal noticiosa */
+        header::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent,
+                transparent 6px,
+                rgba(255,255,255,0.025) 6px,
+                rgba(255,255,255,0.025) 7px
+            );
+        }
+        /* Barra diagonal de acento luminoso */
+        header::after {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                linear-gradient(105deg, transparent 30%, rgba(30,120,255,0.12) 50%, transparent 70%),
+                linear-gradient(to right, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+        }
+        .header-content {
+            position: relative; z-index: 1;
+            text-align: center;
+        }
+        .header-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(48px, 10vw, 90px);
+            color: #ffffff;
+            letter-spacing: 4px;
+            line-height: 1;
+            text-shadow: 0 0 40px rgba(30,120,255,0.4), 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .header-title span { color: #4da6ff; }
+        .header-sub {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-top: 4px;
+        }
+
+        /* Botón perfil en esquina superior izquierda */
+        #btnPerfil {
+            position: absolute;
+            top: 16px; left: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 50%;
+            width: 42px; height: 42px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px);
+            transition: background 0.2s;
+            z-index: 10;
+            padding: 0;
+        }
+        #btnPerfil:hover { background: rgba(255,255,255,0.2); }
+        #btnPerfil img {
+            width: 100%; height: 100%;
+            border-radius: 50%; object-fit: cover;
+            display: none;
+        }
+
+
+        /* ─── BOTÓN COMPARTIR ─── */
+        .social-btn-compartir {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .social-btn-compartir:hover { background: #333; border-color: #333; color: #fff; }
+        body.dark .social-btn-compartir { background: var(--accent2); border-color: var(--accent2); color: #111; }
+        body.dark .social-btn-compartir:hover { background: #b8993e; border-color: #b8993e; }
+
+        /* ─── MODAL QR ─── */
+        .modal-qr-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-qr-overlay.abierto { display: flex; }
+        .modal-qr-caja {
+            background: var(--surface, #fff);
+            border: 1px solid var(--border, #e0ddd6);
+            border-radius: 20px;
+            padding: 36px 28px 28px;
+            text-align: center;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.35);
+            max-width: 320px;
+            width: 92%;
+            position: relative;
+            animation: qrSlideUp 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes qrSlideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @media (min-width: 768px) {
+            .modal-qr-caja { max-width: 520px; padding: 48px 56px 40px; }
+            .modal-qr-titulo { font-size: 1.4rem !important; }
+            #qrCanvas { width: 320px !important; height: 320px !important; }
+            .modal-qr-url { font-size: 0.85rem !important; }
+            .modal-qr-cerrar { width: 36px !important; height: 36px !important; top: 16px !important; right: 16px !important; }
+        }
+        .modal-qr-cerrar {
+            position: absolute; top: 12px; right: 12px;
+            background: var(--bg, #f5f5f0);
+            border: 1px solid var(--border, #e0ddd6);
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            font-size: 15px;
+            cursor: pointer;
+            color: var(--text-soft, #666);
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .modal-qr-cerrar:hover { background: var(--border, #e0ddd6); }
+        .modal-qr-titulo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            color: var(--text, #1a1a1a);
+            margin-bottom: 4px;
+        }
+        .modal-qr-sub { font-size: 0.82rem; color: var(--text-soft, #666); margin-bottom: 20px; }
+        #qrCanvas { border-radius: 12px; box-shadow: 0 2px 14px rgba(0,0,0,0.12); }
+        .modal-qr-url {
+            font-size: 0.72rem;
+            color: var(--text-soft, #666);
+            margin-top: 14px;
+            word-break: break-all;
+            background: var(--bg, #f5f5f0);
+            border: 1px solid var(--border, #e0ddd6);
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+        .btn-copiar-qr {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 14px;
+            background: var(--accent, #1a1a1a);
+            color: #fff;
+            border: none; border-radius: 100px;
+            padding: 10px 24px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-copiar-qr:hover { background: #333; transform: translateY(-1px); }
+        body.dark .btn-copiar-qr { background: var(--accent2); color: #111; }
+        body.dark .btn-copiar-qr:hover { background: #b8993e; }
+
+        /* ─── BARRA DE REDES SOCIALES ─── */
+        .social-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            transition: background 0.35s;
+        }
+
+        .social-btn {
+            display: flex; align-items: center; gap: 7px;
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .social-btn.contrataciones {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: #fff;
+        }
+        .social-btn.contrataciones:hover { background: #b8993e; border-color: #b8993e; }
+        .social-btn svg { flex-shrink: 0; }
+
+        /* ─── MAIN CONTAINER ─── */
+        .main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 16px 60px;
+        }
+
+        /* ─── SITE TITLE ─── */
+        .site-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .site-title h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 36px;
+            letter-spacing: 3px;
+            color: var(--text);
+        }
+        .site-title hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+            margin: 8px auto 0;
+            width: 200px;
+        }
+
+        /* ─── TABS ─── */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+        .tab-btn {
+            padding: 11px 28px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .tab-btn:hover { border-color: var(--accent2); color: var(--text); }
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        body.dark .tab-btn.active { background: var(--accent2); border-color: var(--accent2); color: #111; }
+
+        /* ─── SECTIONS ─── */
+        .section { display: none; }
+        .section.visible { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── BIOGRAFÍA ─── */
+        .bio-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 40px;
+            line-height: 1.75;
+        }
+        .bio-card p { color: var(--text); font-size: 15px; margin-bottom: 16px; }
+        .bio-card p:last-child { margin-bottom: 0; color: var(--text-soft); font-size: 13px; font-style: italic; }
+
+        /* ─── PATROCINADORES (placeholder) ─── */
+        .cv-placeholder {
+            background: var(--surface);
+            border: 1.5px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            color: var(--text-soft);
+        }
+        .cv-placeholder svg { opacity: 0.3; margin-bottom: 16px; }
+        .cv-placeholder h3 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; margin-bottom: 8px; color: var(--text); }
+        .cv-placeholder p { font-size: 14px; }
+
+        /* ─── NOTICIAS ─── */
+        .noticias-estado {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-soft);
+            font-size: 14px;
+        }
+        .noticias-estado svg { opacity: 0.3; display: block; margin: 0 auto 12px; }
+
+        .noticias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Tarjeta de noticia */
+        .noticia-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.22s, box-shadow 0.22s;
+            display: flex;
+            flex-direction: column;
+        }
+        .noticia-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 32px rgba(0,0,0,0.12);
+        }
+        .noticia-card-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            display: block;
+            background: var(--bg);
+        }
+        .noticia-card-img-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #0a1628, #102a58);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.3);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .noticia-card-img-placeholder svg { opacity: 0.25; }
+        .noticia-card-body {
+            padding: 16px 18px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .noticia-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .noticia-card-fecha {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4da6ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .noticia-card-lugar {
+            font-size: 11px;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .noticia-card-titulo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .noticia-card-desc {
+            font-size: 13px;
+            color: var(--text-soft);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        .noticia-card-leer {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #4da6ff;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Modal de noticia completa ── */
+        #modalNoticia {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        #modalNoticia.visible { display: flex; }
+        .modal-noticia-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+        }
+        .modal-noticia-box {
+            position: relative;
+            z-index: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-noticia-media {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .modal-noticia-media img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .modal-noticia-media iframe {
+            width: 100%; height: 100%;
+            border: none;
+        }
+        .modal-noticia-media-placeholder {
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a1628, #102a58);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.2);
+        }
+        .modal-noticia-content {
+            padding: 28px 32px 32px;
+        }
+        .modal-noticia-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .modal-noticia-fecha {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4da6ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-noticia-lugar {
+            font-size: 12px;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .modal-noticia-titulo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 1.5px;
+            color: var(--text);
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+        .modal-noticia-desc {
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.8;
+        }
+        .modal-noticia-cerrar {
+            position: absolute;
+            top: 14px; right: 14px;
+            background: rgba(0,0,0,0.45);
+            border: none;
+            border-radius: 50%;
+            width: 36px; height: 36px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2;
+            transition: background 0.2s;
+        }
+        .modal-noticia-cerrar:hover { background: rgba(0,0,0,0.7); }
+
+        @media (max-width: 480px) {
+            .noticias-grid { grid-template-columns: 1fr; }
+            .modal-noticia-content { padding: 20px; }
+            .modal-noticia-titulo { font-size: 24px; }
+        }
+
+        /* ─── TOAST ─── */
+        #toast {
+            position: fixed; bottom: 28px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 100px;
+            font-size: 13px; font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        body.dark #toast { background: var(--accent2); color: #111; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ─── SUBMENÚ COMPARTIR ─── */
+        .compartir-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+        .compartir-submenu {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            right: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 12px 10px;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            z-index: 9000;
+            animation: submenuFadeIn 0.2s cubic-bezier(.4,0,.2,1);
+        }
+        .compartir-submenu.abierto { display: block; }
+        @keyframes submenuFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .compartir-titulo {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            padding: 0 6px 8px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 6px;
+        }
+        .compartir-opcion {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%;
+            padding: 10px 8px;
+            border-radius: 9px;
+            border: none;
+            background: none;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.18s;
+            text-align: left;
+        }
+        .compartir-opcion:hover { background: var(--border); }
+        .compartir-opcion svg { flex-shrink: 0; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+<!-- ── DRAWER OVERLAY ── -->
+<div id="drawerOverlay" onclick="cerrarDrawer()"></div>
+
+<!-- ── SIDEBAR DRAWER ── -->
+<div id="drawer">
+    <div class="drawer-header">
+        <button class="drawer-close" onclick="cerrarDrawer()">✕</button>
+        <div class="drawer-avatar" id="drawerAvatarWrap">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+            </svg>
+        </div>
+        <div class="drawer-name" id="drawerNombre">Comunidades de Michoacán</div>
+        <div class="drawer-email" id="drawerEmail">Inicia sesión para acceder</div>
+    </div>
+
+    <div class="drawer-body">
+        <!-- No logueado -->
+        <div id="drawerNoSesion">
+            <button class="drawer-item" onclick="mostrarToast('Próximamente: inicio de sesión')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Iniciar sesión
+            </button>
+        </div>
+
+        <!-- Logueado (oculto por ahora) -->
+        <div id="drawerConSesion" style="display:none">
+            <div class="drawer-section-label">Mi cuenta</div>
+            <button class="drawer-item" onclick="mostrarToast('Perfil — próximamente')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                Perfil
+            </button>
+        </div>
+
+        <div class="drawer-divider"></div>
+        <div class="drawer-section-label">Ajustes</div>
+
+        <!-- Modo oscuro toggle -->
+        <div class="toggle-row">
+            <span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.7"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                Modo oscuro
+            </span>
+            <div class="toggle" id="toggleOscuro" onclick="toggleModoOscuro()"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── HEADER BANNER ── -->
+<header>
+    <div class="header-content">
+        <h1 class="header-title">Comunidades de <span>Michoacán</span></h1>
+        <p class="header-sub">Contenido · Creación · Comunidad</p>
+    </div>
+    <!-- Botón perfil -->
+    <button id="btnPerfil" onclick="abrirDrawer()" title="Perfil / Cuenta">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        <img id="btnPerfilImg" src="" alt="avatar">
+    </button>
+</header>
+
+<!-- ── BARRA REDES SOCIALES ── -->
+<div class="social-bar">
+    <!-- 1. Contrataciones -->
+    <a class="social-btn contrataciones" href="mailto:comunidadesdemichoacan@gmail.com" title="Contrataciones">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Contrataciones
+    </a>
+    <!-- 2. Facebook -->
+    <a class="social-btn" href="https://www.facebook.com/profile.php?id=100092362416144" target="_blank" title="Facebook">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        Facebook
+    </a>
+    <!-- 3. Instagram -->
+    <a class="social-btn" href="https://www.instagram.com/comunidades_de_michoacan/" target="_blank" title="Instagram">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        Instagram
+    </a>
+    <!-- 4. YouTube -->
+    <a class="social-btn" href="https://www.youtube.com/@COMUNIDADESDEMICHOACAN" target="_blank" title="YouTube">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+        YouTube
+    </a>
+    <!-- 6. TikTok -->
+    <a class="social-btn" href="https://www.tiktok.com/@comunidades.de.mi0" target="_blank" title="TikTok">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.3a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V9.01a8.16 8.16 0 0 0 4.77 1.52V7.09a4.85 4.85 0 0 1-1.01-.4z"/></svg>
+        TikTok
+    </a>
+    <!-- 8. Compartir QR -->
+    <div class="compartir-wrap" id="compartirWrap">
+        <button class="social-btn social-btn-compartir" onclick="toggleSubMenuCompartir(event)" title="Compartir" id="btnCompartir">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Compartir
+        </button>
+        <div class="compartir-submenu" id="compartirSubmenu">
+            <div class="compartir-titulo">Comparte esta página</div>
+            <button class="compartir-opcion" onclick="copiarLinkDirecto()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span id="copiarLinkTexto">Copiar enlace</span>
+            </button>
+            <button class="compartir-opcion" onclick="abrirModalQR(); cerrarSubMenuCompartir();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+                Ver código QR
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ IMAGEN DE PERFIL ═══ -->
+<div style="display:flex; justify-content:center; align-items:center; padding:32px 16px 24px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="width:400px; height:400px; max-width:85vw; max-height:85vw; border-radius:50%; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.13); border:3px solid var(--border); flex-shrink:0;">
+        <img src="imagenes/perfil.webp" alt="Comunidades de Michoacán" style="width:100%; height:100%; object-fit:cover; display:block;">
+    </div>
+</div>
+
+<!-- ── CONTENIDO PRINCIPAL ── -->
+<main class="main">
+
+    <!-- Título de la página -->
+    <div class="site-title">
+        <h2>Comunidades de Michoacán</h2>
+        <hr>
+    </div>
+
+    <!-- Tabs de navegación -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="mostrarSeccion('bio', this)">Biografía</button>
+        <button class="tab-btn" onclick="mostrarSeccion('noticias', this)">Noticias</button>
+        <button class="tab-btn" onclick="mostrarSeccion('patrocinadores', this)" style="line-height:1.25">Patrocinadores<br>y Colaboradores</button>
+    </div>
+
+    <!-- ── SECCIÓN: BIOGRAFÍA ── -->
+    <div class="section visible" id="sec-bio">
+        <div class="bio-card">
+            <p>Aquí va la biografía.</p>
+            <p id="fecha-hoy"></p>
+        </div>
+    </div>
+
+    <!-- ── SECCIÓN: NOTICIAS ── -->
+    <div class="section" id="sec-noticias">
+        <div id="noticiasGrid" class="noticias-grid">
+            <div class="noticias-estado">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Cargando noticias…
+            </div>
+        </div>
+    </div>
+    <!-- ── SECCIÓN: PATROCINADORES Y COLABORADORES ── -->
+    <div class="section" id="sec-patrocinadores">
+        <div class="cv-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <h3>Patrocinadores y Colaboradores</h3>
+            <p>Próximamente se mostrarán nuestros patrocinadores y colaboradores.</p>
+        </div>
+    </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     MODAL DE NOTICIA COMPLETA
+══════════════════════════════════════════ -->
+<div id="modalNoticia">
+    <div class="modal-noticia-overlay" onclick="cerrarModalNoticia()"></div>
+    <div class="modal-noticia-box">
+        <button class="modal-noticia-cerrar" onclick="cerrarModalNoticia()">✕</button>
+        <div class="modal-noticia-media" id="modalNoticiMedia"></div>
+        <div class="modal-noticia-content">
+            <div class="modal-noticia-meta">
+                <span class="modal-noticia-fecha" id="modalNoticiaFecha"></span>
+                <span class="modal-noticia-lugar" id="modalNoticiaLugar">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span id="modalNoticiaLugarTxt"></span>
+                </span>
+            </div>
+            <div class="modal-noticia-titulo" id="modalNoticiaTitulo"></div>
+            <div class="modal-noticia-desc" id="modalNoticiaDesc"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<script>
+// ═══ FECHA DE HOY ═══
+(function() {
+    const hoy = new Date();
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('fecha-hoy').textContent =
+        hoy.toLocaleDateString('es-MX', opciones).replace(/^\w/, c => c.toUpperCase());
+})();
+
+
+// ═══ SISTEMA DE NOTICIAS DESDE GOOGLE SHEETS ═══
+// 🔧 CONFIGURACIÓN — URL pública de "Publicar en la web" (CSV directo, más confiable):
+var NOTICIAS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRL_WNt8GFeoRwMtKRVlTTO6OQignlfONFaT87I5RyBFrVaPTXoPxDo6labvgV0IXS0IX3QZYGWI5Fn/pub?gid=0&single=true&output=csv';
+// COLUMNAS ESPERADAS (fila 1 = encabezados, datos desde fila 2):
+//   A(0): Titulo Noticia
+//   B(1): Descripcion Noticia
+//   C(2): fecha
+//   D(3): lugar
+//   E(4): Link  (URL directa de imagen, o enlace de YouTube / Facebook / Instagram)
+//   F(5): Imagen/Video — el cliente escribe:
+//           "imagen" → post de Facebook con foto  (usa plugins/post.php)
+//           "video"  → video de Facebook o YouTube (usa plugins/video.php / embed YT)
+//           (Instagram y URLs de imagen directa se detectan solos por la URL)
+//   G(6): Publicar en Facebook/Instagram — "si" o "no"
+//           "si" → muestra el embed de FB/IG en la web
+//           "no" → la noticia aparece en la web pero SIN embed (solo placeholder)
+
+var listaNoticias = [];
+
+// ── Parser robusto: detecta automáticamente si el separador es TAB o coma ──
+function parsearCSVNoticias(texto) {
+    // Detectar separador: si la primera línea tiene más tabs que comas, es TSV
+    var primeraLinea = texto.split('\n')[0] || '';
+    var sep = (primeraLinea.split('\t').length > primeraLinea.split(',').length) ? '\t' : ',';
+
+    var lineas = [];
+    var filaActual = [];
+    var campoActual = '';
+    var dentroDeComillas = false;
+
+    for (var i = 0; i < texto.length; i++) {
+        var c = texto[i];
+        if (c === '"') {
+            if (dentroDeComillas && texto[i + 1] === '"') {
+                campoActual += '"'; i++;
+            } else {
+                dentroDeComillas = !dentroDeComillas;
+            }
+        } else if (c === sep && !dentroDeComillas) {
+            filaActual.push(campoActual.trim());
+            campoActual = '';
+        } else if ((c === '\n' || c === '\r') && !dentroDeComillas) {
+            if (c === '\r' && texto[i + 1] === '\n') i++;
+            filaActual.push(campoActual.trim());
+            if (filaActual.some(function(f) { return f !== ''; })) lineas.push(filaActual);
+            filaActual = []; campoActual = '';
+        } else {
+            campoActual += c;
+        }
+    }
+    filaActual.push(campoActual.trim());
+    if (filaActual.some(function(f) { return f !== ''; })) lineas.push(filaActual);
+    return lineas;
+}
+
+// ── Detecta y construye el objeto de media según URL, tipo declarado y flag de publicar ──
+// tipo:     'imagen' → post FB con foto  |  'video' → video FB/YT  |  '' → auto-detectar
+// publicar: 'si' o 'no' — si es 'no', los embeds de FB/IG se suprimen en la web
+function detectarMedia(url, tipoDeclarado, publicar) {
+    url = (url || '').trim().replace(/^"+|"+$/g, '');
+    tipoDeclarado = (tipoDeclarado || '').trim().toLowerCase();
+    var mostrarEmbed = (publicar || '').trim().toLowerCase() !== 'no';
+
+    if (!url) return { tipo: 'ninguno', url: '' };
+
+    // ── YouTube (siempre embed, independiente del tipo declarado) ──
+    var ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) return { tipo: 'youtube', url: 'https://www.youtube.com/embed/' + ytMatch[1] };
+
+    // ── Facebook ──
+    if (url.includes('facebook.com')) {
+        if (!mostrarEmbed) {
+            // El cliente marcó "no" → no mostrar embed de FB, solo placeholder con ícono FB
+            return { tipo: 'facebook-oculto', url: '' };
+        }
+        if (tipoDeclarado === 'video') {
+            // Video de Facebook
+            return {
+                tipo: 'facebook',
+                url: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&autoplay=false'
+            };
+        } else {
+            // "imagen" o cualquier otro valor → post con imagen (plugins/post.php)
+            return {
+                tipo: 'facebook',
+                url: 'https://www.facebook.com/plugins/post.php?href=' + encodeURIComponent(url) + '&show_text=true&width=500'
+            };
+        }
+    }
+
+    // ── Instagram ──
+    var igMatch = url.match(/instagram\.com\/(p|reel|tv)\/([^/?#]+)/);
+    if (igMatch) {
+        if (!mostrarEmbed) {
+            return { tipo: 'instagram-oculto', url: '' };
+        }
+        return {
+            tipo: 'instagram',
+            url: 'https://www.instagram.com/' + igMatch[1] + '/' + igMatch[2] + '/embed/'
+        };
+    }
+
+    // ── URL directa de imagen ──
+    return { tipo: 'imagen', url: url };
+}
+
+// ── Convierte filas CSV/TSV en objetos de noticia ──
+// IMPORTANTE: todas las noticias se muestran en la web siempre.
+// La columna G (publicar en FB/IG) solo afecta si se muestra el embed de redes sociales,
+// pero NUNCA oculta la noticia de la página web.
+function csvANoticias(filas) {
+    if (filas.length < 2) return [];
+    var noticias = [];
+    for (var i = 1; i < filas.length; i++) {
+        var f = filas[i];
+        var get = function(idx) { return ((f[idx] || '')).trim().replace(/^"+|"+$/g, ''); };
+        if (!get(0)) continue; // saltar filas completamente vacías
+        noticias.push({
+            titulo:      get(0),
+            descripcion: get(1),
+            fecha:       get(2),
+            lugar:       get(3),
+            // E(4)=link, F(5)=imagen/video, G(6)=publicar en FB/IG (solo afecta embed)
+            media:       detectarMedia(get(4), get(5), get(6))
+        });
+    }
+    return noticias;
+}
+
+// ── Construye el HTML de la zona de media para el MODAL ──
+function buildModalMedia(media) {
+    var el = document.getElementById('modalNoticiMedia');
+    el.innerHTML = '';
+    if (media.tipo === 'imagen' && media.url) {
+        var img = document.createElement('img');
+        img.src = media.url;
+        img.alt = 'Imagen de la noticia';
+        img.onerror = function() { el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>'; };
+        el.appendChild(img);
+    } else if (media.tipo === 'youtube' || media.tipo === 'facebook' || media.tipo === 'instagram') {
+        var iframe = document.createElement('iframe');
+        iframe.src = media.url;
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('loading', 'lazy');
+        if (media.tipo === 'facebook') {
+            iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share');
+        }
+        el.appendChild(iframe);
+    } else if (media.tipo === 'facebook-oculto') {
+        // Publicado en FB pero con "no" en columna G → mostrar ícono FB sin embed
+        el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.25"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>';
+    } else if (media.tipo === 'instagram-oculto') {
+        el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.25"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></div>';
+    } else {
+        el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>';
+    }
+}
+
+// ── Abre el modal con la noticia seleccionada ──
+function abrirModalNoticia(n) {
+    buildModalMedia(n.media);
+    document.getElementById('modalNoticiaFecha').textContent = n.fecha || '';
+    document.getElementById('modalNoticiaLugarTxt').textContent = n.lugar || '';
+    document.getElementById('modalNoticiaLugar').style.display = n.lugar ? 'flex' : 'none';
+    document.getElementById('modalNoticiaTitulo').textContent = n.titulo;
+    document.getElementById('modalNoticiaDesc').textContent = n.descripcion;
+    document.getElementById('modalNoticia').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalNoticia() {
+    document.getElementById('modalNoticia').classList.remove('visible');
+    document.getElementById('modalNoticiMedia').innerHTML = ''; // detiene video
+    document.body.style.overflow = '';
+}
+
+// Cerrar con Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarModalNoticia();
+});
+
+// ── Renderiza las tarjetas en el grid ──
+function renderizarNoticias(noticias) {
+    var grid = document.getElementById('noticiasGrid');
+    if (!grid) return;
+
+    if (noticias.length === 0) {
+        grid.innerHTML = '<div class="noticias-estado"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>No hay noticias disponibles todavía.</div>';
+        return;
+    }
+
+    grid.innerHTML = '';
+    noticias.forEach(function(n) {
+        var card = document.createElement('div');
+        card.className = 'noticia-card';
+        card.onclick = function() { abrirModalNoticia(n); };
+
+        // Zona de imagen / placeholder según tipo de media
+        var mediaZone = '';
+        if (n.media.tipo === 'imagen' && n.media.url) {
+            mediaZone = '<img class="noticia-card-img" src="' + n.media.url + '" alt="' + n.titulo + '" onerror="this.outerHTML=\'<div class=\\\"noticia-card-img-placeholder\\\"><svg width=\\\"32\\\" height=\\\"32\\\" viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\" stroke=\\\"currentColor\\\" stroke-width=\\\"1.5\\\"><rect x=\\\"3\\\" y=\\\"3\\\" width=\\\"18\\\" height=\\\"18\\\" rx=\\\"3\\\"/><circle cx=\\\"9\\\" cy=\\\"9\\\" r=\\\"2\\\"/><path d=\\\"m21 15-5-5L5 21\\\"/></svg><span>SIN IMAGEN</span></div>\'">';
+        } else if (n.media.tipo === 'youtube') {
+            mediaZone = '<div class="noticia-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg><span>VIDEO YOUTUBE</span></div>';
+        } else if (n.media.tipo === 'facebook') {
+            mediaZone = '<div class="noticia-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg><span>PUBLICACIÓN FACEBOOK</span></div>';
+        } else if (n.media.tipo === 'facebook-oculto') {
+            mediaZone = '<div class="noticia-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg><span>SOLO EN LA WEB</span></div>';
+        } else if (n.media.tipo === 'instagram') {
+            mediaZone = '<div class="noticia-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg><span>REEL INSTAGRAM</span></div>';
+        } else if (n.media.tipo === 'instagram-oculto') {
+            mediaZone = '<div class="noticia-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg><span>SOLO EN LA WEB</span></div>';
+        } else {
+            mediaZone = '<div class="noticia-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span>SIN IMAGEN</span></div>';
+        }
+
+        card.innerHTML =
+            mediaZone +
+            '<div class="noticia-card-body">' +
+                '<div class="noticia-card-meta">' +
+                    (n.fecha ? '<span class="noticia-card-fecha">' + n.fecha + '</span>' : '') +
+                    (n.lugar ? '<span class="noticia-card-lugar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + n.lugar + '</span>' : '') +
+                '</div>' +
+                '<div class="noticia-card-titulo">' + n.titulo + '</div>' +
+                '<div class="noticia-card-desc">' + n.descripcion + '</div>' +
+                '<div class="noticia-card-leer">Leer más →</div>' +
+            '</div>';
+
+        grid.appendChild(card);
+    });
+}
+
+// ── Carga las noticias desde Google Sheets (CSV público) ──
+function cargarNoticias() {
+    var csvUrl = NOTICIAS_CSV_URL;
+    var grid = document.getElementById('noticiasGrid');
+    if (grid) grid.innerHTML = '<div class="noticias-estado"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Cargando noticias…</div>';
+
+    fetch(csvUrl)
+        .then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+        })
+        .then(function(texto) {
+            var filas = parsearCSVNoticias(texto);
+            listaNoticias = csvANoticias(filas);
+            renderizarNoticias(listaNoticias);
+        })
+        .catch(function(err) {
+            console.error('[Noticias] Error cargando sheet:', err);
+            if (grid) grid.innerHTML = '<div class="noticias-estado"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>No se pudieron cargar las noticias.<br>Verifica que la hoja esté publicada como CSV.</div>';
+        });
+}
+
+// Cargar al presionar el tab de Noticias (lazy load)
+var _noticiasYaCargadas = false;
+var _tabOriginal = typeof mostrarSeccion === 'function' ? mostrarSeccion : null;
+mostrarSeccion = function(id, btn) {
+    document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('visible'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('sec-' + id).classList.add('visible');
+    btn.classList.add('active');
+    if (id === 'cv' && !_noticiasYaCargadas) {
+        _noticiasYaCargadas = true;
+        cargarNoticias();
+    }
+};
+
+// ═══ DRAWER ═══
+function abrirDrawer() {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('open');
+}
+function cerrarDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('open');
+}
+
+// ═══ MODO OSCURO ═══
+function toggleModoOscuro() {
+    const body = document.body;
+    const toggle = document.getElementById('toggleOscuro');
+    body.classList.toggle('dark');
+    toggle.classList.toggle('on');
+    localStorage.setItem('epn-dark', body.classList.contains('dark') ? '1' : '0');
+}
+
+// Aplicar preferencia guardada
+if (localStorage.getItem('epn-dark') === '1') {
+    document.body.classList.add('dark');
+    document.getElementById('toggleOscuro').classList.add('on');
+}
+
+// ═══ TOAST ═══
+let toastTimer;
+function mostrarToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+</script>
+
+<!-- ═══ MODAL QR — COMPARTIR ═══ -->
+<div class="modal-qr-overlay" id="modalQR">
+    <div class="modal-qr-caja">
+        <button class="modal-qr-cerrar" onclick="cerrarModalQR()">✕</button>
+        <div class="modal-qr-titulo">COMUNIDADES DE MICHOACÁN</div>
+        <p class="modal-qr-sub">Escanea para visitar <strong>comunidadesdemichoacan.com</strong></p>
+        <img id="qrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADHElEQVR4nO2cQW7jMAxFH0cCspSBHqBHsW8wRyp6pLmBfZQeoIC9LCDjz0KSkxbddDq1g4RaCAjih1AoQVKfdE18eU2/vs6AQw455JBDDjl0m5DVFTHrVgNWs2GJMFnEhqU9MBxinkP7Q70kaQZpBqaubf0MQJAk6T20n3kO7Q8tNQCYdWBPLyfRK8P0+GYAmFk8zjyHDoOkl5OKH0zdj/6SQ9cJxQ+frf8DYomIxYAEYjnKPIcOg5KkEdDzY8aGJEHKaCSU6kFSPs48h3aDuKwYCaKfP9vaA70kjVd+Joe+A5WscSllpzcTvJkgA6wG6b3WfeVncuh/QZNF9NzVe4VZB0AQLBEblogNB5rn0C5QyxpJ5bqpEaglRKrpRGPKsIkSnjXuAJLm1WCJpVKgn4NsYLVSRwBoZLWDzHNo/9vnNICmxxytH9coALGcZABGqk9bP+5rnkOHQSlTYgQEMXWUDkdJGP1LpEiYR5nn0G5QiREGJ0F6jZq616h+XqNgjUZ6jVWhWh5ke5vn0O4Q2hb9XDtdRY3aKgqNm37lleXNQy1GpBlBjkbKkWkIMpaHLMgYxGwQWtq48jM59B2IFh6CmmId6mW0fpvr7bPfgonHiFuGOCeM0tzYXKCliUxNJ5Jcxb59aFOoakbQSJA0t23k3OQK7hF3ALVisf25z1tzC2qMGME7XXcAtfmINAPLQy7bZCFb7XmFbCRhpNf28JWfyaHvQO8qy5RrKXm+jI5sWSN5ZXlX0GpFmpzsJKZuNT0/Vj+wgSDva9wJdDlVN/3OkV4Ay6lORGzqJUXW3Nk8h46Cpi7IhuIHq7U2x6mEhzqGnTI2HGOeQ3tDrXrI2FBG61qGKC9tSCo55RjzHDpAjyhrm4lp87ZllSGJlL2vcT9QFSDaQN3TvJo0h/oaz2Wv/BDzHDpGxf54BZ25GK0rvuEK1R1CS6QVlZRocS40r8A8h34Y+vhOF73AIAApR6gVhYz05nrEHUCXPU1tWWPkPDtTC83aAvOscevQJ3eN/L4BSi0wNnnbPeKmIfP/TOaQQw455JBDDv0j9Bf95lulG6nQ9AAAAABJRU5ErkJggg==" alt="QR comunidadesdemichoacan.com" style="width:200px;height:200px;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,0.12);display:block;margin:0 auto;">
+        <div class="modal-qr-url">comunidadesdemichoacan.com</div>
+        <button class="btn-copiar-qr" onclick="copiarURLQR()" id="btnCopiarURL">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span id="btnCopiarTexto">Copiar enlace</span>
+        </button>
+    </div>
+</div>
+
+<script>
+// ═══ SUBMENÚ COMPARTIR ═══
+function toggleSubMenuCompartir(e) {
+    e.stopPropagation();
+    var menu = document.getElementById('compartirSubmenu');
+    menu.classList.toggle('abierto');
+}
+function cerrarSubMenuCompartir() {
+    document.getElementById('compartirSubmenu').classList.remove('abierto');
+}
+document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('compartirWrap');
+    if (wrap && !wrap.contains(e.target)) cerrarSubMenuCompartir();
+});
+
+// ═══ MODAL QR — COMPARTIR ═══
+// El QR es una imagen estática que apunta a comunidadesdemichoacan.com (dominio permanente).
+// El botón "Copiar enlace" copia la URL actual de la página.
+
+function abrirModalQR() {
+    document.getElementById('modalQR').classList.add('abierto');
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalQR() {
+    document.getElementById('modalQR').classList.remove('abierto');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('modalQR').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalQR();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarModalQR();
+});
+
+function copiarURLQR() {
+    var url = window.location.href;
+    var btnTexto = document.getElementById('btnCopiarTexto');
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(function() {
+            btnTexto.textContent = '¡Copiado!';
+            setTimeout(function() { btnTexto.textContent = 'Copiar enlace'; }, 2000);
+        });
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btnTexto.textContent = '¡Copiado!';
+        setTimeout(function() { btnTexto.textContent = 'Copiar enlace'; }, 2000);
+    }
+}
+
+function copiarLinkDirecto() {
+    var url = window.location.href;
+    var span = document.getElementById('copiarLinkTexto');
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(function() {
+            span.textContent = '¡Copiado!';
+            setTimeout(function() { span.textContent = 'Copiar enlace'; cerrarSubMenuCompartir(); }, 1800);
+        });
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        span.textContent = '¡Copiado!';
+        setTimeout(function() { span.textContent = 'Copiar enlace'; cerrarSubMenuCompartir(); }, 1800);
+    }
+}
+</script>
+
+</body>
+</html>
