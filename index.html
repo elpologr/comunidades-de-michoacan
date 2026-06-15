@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidades de Michoacán</title>
-    <link rel="icon" type="image/webp" href="imagenes/perfil.webp">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="imagenes/perfil.webp">
     <link rel="apple-touch-icon" href="imagenes/perfil.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1929,10 +1930,13 @@ window.publicarNoticia = async function() {
 
 window.togglePanelAdmin = function() {
     const panel = document.getElementById('modalPanelAdmin');
+    const abriendo = !panel.classList.contains('abierto');
     panel.classList.toggle('abierto');
+    document.body.style.overflow = abriendo ? 'hidden' : '';
 };
 window.cerrarPanelAdmin = function() {
     document.getElementById('modalPanelAdmin').classList.remove('abierto');
+    document.body.style.overflow = '';
 };
 
 </script>
@@ -1940,7 +1944,7 @@ window.cerrarPanelAdmin = function() {
 <!-- ══════════════════════════════════════════
      MODAL PANEL ADMINISTRADOR
 ══════════════════════════════════════════ -->
-<div id="modalPanelAdmin">
+<div id="modalPanelAdmin" onclick="if(event.target===this)cerrarPanelAdmin()">
     <div class="admin-panel-caja">
         <button class="admin-panel-cerrar" onclick="cerrarPanelAdmin()">✕</button>
         <div class="admin-panel-titulo">📢 Nueva Noticia</div>
