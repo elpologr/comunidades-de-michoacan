@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidades de Michoacán</title>
+    <link rel="icon" type="image/webp" href="imagenes/perfil.webp">
+    <link rel="apple-touch-icon" href="imagenes/perfil.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -487,7 +489,7 @@
 
         .noticias-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
 
@@ -688,6 +690,9 @@
         }
         .modal-noticia-cerrar:hover { background: rgba(0,0,0,0.7); }
 
+        @media (max-width: 768px) {
+            .noticias-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 480px) {
             .noticias-grid { grid-template-columns: 1fr; }
             .modal-noticia-content { padding: 20px; }
@@ -1128,21 +1133,24 @@
 
     <!-- Tabs de navegación -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="mostrarSeccion('bio', this)">Biografía</button>
-        <button class="tab-btn" onclick="mostrarSeccion('noticias', this)">Noticias</button>
+        <button class="tab-btn" onclick="mostrarSeccion('bio', this)">Biografía</button>
+        <button class="tab-btn active" onclick="mostrarSeccion('noticias', this)">Noticias</button>
         <button class="tab-btn" onclick="mostrarSeccion('patrocinadores', this)" style="line-height:1.25">Patrocinadores<br>y Colaboradores</button>
     </div>
 
     <!-- ── SECCIÓN: BIOGRAFÍA ── -->
-    <div class="section visible" id="sec-bio">
+    <div class="section" id="sec-bio">
         <div class="bio-card">
-            <p>Aquí va la biografía.</p>
+            <p><strong>👥 Quiénes somos</strong></p>
+            <p>Comunidades de Michoacán es una plataforma digital e independiente dedicada a la difusión, preservación y celebración de la riqueza cultural, histórica y social de los diversos rincones de nuestro estado. Somos un espacio de encuentro creado por y para la comunidad, con el firme propósito de dar voz a las tradiciones, el acontecer diario y los proyectos locales que definen la identidad de Michoacán. A través del contenido digital, buscamos tender puentes entre las regiones, impulsando la colaboración y el orgullo por nuestras raíces.</p>
+            <p><strong>📜 Nuestra historia</strong></p>
+            <p>Este proyecto nació de la inquietud de capturar y compartir la esencia viva de Michoacán: sus historias no contadas, sus paisajes y la fuerza de su gente. Lo que comenzó como una iniciativa para documentar las tradiciones locales ha evolucionado hasta convertirse en un canal de comunicación integral que conecta a miles de personas dentro y fuera del estado. A lo largo de nuestra trayectoria, hemos trabajado de la mano con creadores de contenido, líderes comunitarios y colaboradores locales para construir un archivo vivo y dinámico, consolidándonos como un referente de unión, difusión y pertenencia en toda la región.</p>
             <p id="fecha-hoy"></p>
         </div>
     </div>
 
     <!-- ── SECCIÓN: NOTICIAS ── -->
-    <div class="section" id="sec-noticias">
+    <div class="section visible" id="sec-noticias">
         <div id="noticiasGrid" class="noticias-grid">
             <div class="noticias-estado">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -1195,6 +1203,8 @@
         hoy.toLocaleDateString('es-MX', opciones).replace(/^\w/, c => c.toUpperCase());
 })();
 
+// Cargar noticias al inicio (sección por defecto)
+window.addEventListener('DOMContentLoaded', function() { cargarNoticias(); });
 
 // ═══ SISTEMA DE NOTICIAS DESDE GOOGLE SHEETS ═══
 // 🔧 CONFIGURACIÓN — URL pública de "Publicar en la web" (CSV directo, más confiable):
@@ -1445,7 +1455,7 @@ function cargarNoticias() {
 }
 
 // Cargar al presionar el tab de Noticias (lazy load)
-var _noticiasYaCargadas = false;
+var _noticiasYaCargadas = true; // se carga al inicio
 var _tabOriginal = typeof mostrarSeccion === 'function' ? mostrarSeccion : null;
 mostrarSeccion = function(id, btn) {
     document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('visible'); });
