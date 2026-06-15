@@ -1987,38 +1987,7 @@ window.cerrarPanelAdmin = function() {
             📢 Publicar noticia
         </button>
 
-        <!-- Instrucciones rápidas -->
-        <details style="margin-top:18px; font-size:12px; color:var(--text-soft);">
-            <summary style="cursor:pointer; font-weight:700; letter-spacing:0.5px;">⚙️ Configuración requerida</summary>
-            <div style="margin-top:10px; line-height:1.8; padding:12px; background:var(--bg); border-radius:10px; border:1px solid var(--border);">
-                <strong>1. ImgBB API Key:</strong> Regístrate gratis en <a href="https://api.imgbb.com/" target="_blank" style="color:#4da6ff;">api.imgbb.com</a>, genera tu clave y pégala en <code>IMGBB_API_KEY</code> del código.<br>
-                <strong>2. Google Apps Script:</strong> En tu Google Sheet, ve a <em>Extensiones → Apps Script</em>, pega el código del script y despliégalo como Web App (acceso: Anyone). Copia la URL y pégala en <code>APPS_SCRIPT_URL</code>.<br>
-                <strong>3. Email admin:</strong> Cambia <code>ADMIN_EMAIL</code> por tu email de Google en el código.<br><br>
-                <strong>Código del Apps Script:</strong><br>
-                <code style="display:block; background:#111; color:#4da6ff; padding:10px; border-radius:8px; font-size:11px; white-space:pre-wrap; margin-top:6px;">function doPost(e) {
-  try {
-    var datos = JSON.parse(e.postData.contents);
-    var hoja = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    hoja.appendRow([
-      datos.titulo     || '',
-      datos.descripcion|| '',
-      datos.fecha      || '',
-      datos.lugar      || '',
-      datos.link       || '',
-      datos.tipo       || '',
-      datos.publicar   || 'no'
-    ]);
-    return ContentService
-      .createTextOutput(JSON.stringify({status:'ok'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({status:'error',message:err.message}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}</code>
-            </div>
-        </details>
+
     </div>
 </div>
 
