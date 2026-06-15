@@ -1,0 +1,99 @@
+{
+  "sitio": {
+    "nombre": "Comunidades de Michoacán",
+    "subtitulo": "Contenido · Creación · Comunidad",
+    "dominio": "comunidadesdemichoacan.com",
+    "imagenPerfil": "imagenes/perfil.webp",
+    "favicon": "favicon.svg",
+    "faviconAlternativo": "imagenes/perfil.webp"
+  },
+
+  "contacto": {
+    "email": "comunidadesdemichoacan@gmail.com",
+    "whatsapp": "https://wa.me/524531119851"
+  },
+
+  "redesSociales": [
+    {
+      "nombre": "Contáctanos",
+      "url": "mailto:comunidadesdemichoacan@gmail.com",
+      "clases": "contrataciones",
+      "icono": "email"
+    },
+    {
+      "nombre": "WhatsApp",
+      "url": "https://wa.me/524531119851",
+      "clases": "social-btn-whatsapp",
+      "icono": "whatsapp"
+    },
+    {
+      "nombre": "Facebook",
+      "url": "https://www.facebook.com/profile.php?id=100092362416144",
+      "clases": "",
+      "icono": "facebook"
+    },
+    {
+      "nombre": "Instagram",
+      "url": "https://www.instagram.com/comunidades_de_michoacan/",
+      "clases": "",
+      "icono": "instagram"
+    },
+    {
+      "nombre": "YouTube",
+      "url": "https://www.youtube.com/@COMUNIDADESDEMICHOACAN",
+      "clases": "",
+      "icono": "youtube"
+    },
+    {
+      "nombre": "TikTok",
+      "url": "https://www.tiktok.com/@comunidades.de.mi0",
+      "clases": "",
+      "icono": "tiktok"
+    }
+  ],
+
+  "biografia": {
+    "quienesSomos": "Comunidades de Michoacán es una plataforma digital e independiente dedicada a la difusión, preservación y celebración de la riqueza cultural, histórica y social de los diversos rincones de nuestro estado. Somos un espacio de encuentro creado por y para la comunidad, con el firme propósito de dar voz a las tradiciones, el acontecer diario y los proyectos locales que definen la identidad de Michoacán. A través del contenido digital, buscamos tender puentes entre las regiones, impulsando la colaboración y el orgullo por nuestras raíces.",
+    "historia": "Este proyecto nació de la inquietud de capturar y compartir la esencia viva de Michoacán: sus historias no contadas, sus paisajes y la fuerza de su gente. Lo que comenzó como una iniciativa para documentar las tradiciones locales ha evolucionado hasta convertirse en un canal de comunicación integral que conecta a miles de personas dentro y fuera del estado. A lo largo de nuestra trayectoria, hemos trabajado de la mano con creadores de contenido, líderes comunitarios y colaboradores locales para construir un archivo vivo y dinámico, consolidándonos como un referente de unión, difusión y pertenencia en toda la región."
+  },
+
+  "noticias": {
+    "csvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRL_WNt8GFeoRwMtKRVlTTO6OQignlfONFaT87I5RyBFrVaPTXoPxDo6labvgV0IXS0IX3QZYGWI5Fn/pub?gid=0&single=true&output=csv",
+    "columnas": {
+      "A_titulo": "Titulo Noticia",
+      "B_descripcion": "Descripcion Noticia",
+      "C_fecha": "fecha",
+      "D_lugar": "lugar",
+      "E_link": "Link (URL imagen, YouTube, Facebook o Instagram)",
+      "F_tipo": "imagen | video (para distinguir posts FB con foto vs video)",
+      "G_publicar": "si | no (controla si se muestra el embed de redes sociales)"
+    }
+  },
+
+  "firebase": {
+    "apiKey": "AIzaSyC57dBidDG4Dx2_9XrIeuB-hJN6oKg38wM",
+    "authDomain": "comunidades-de-michoacan.firebaseapp.com",
+    "projectId": "comunidades-de-michoacan",
+    "storageBucket": "comunidades-de-michoacan.firebasestorage.app",
+    "messagingSenderId": "137003078065",
+    "appId": "1:137003078065:web:391c14d3e2c9138a52ad90",
+    "measurementId": "G-2B1XNZ19EB"
+  },
+
+  "administradores": [
+    "comunidadesdemichoacan@gmail.com",
+    "dulceprincesa086@gmail.com"
+  ],
+
+  "imgbb": {
+    "apiKey": "1fe0257b2f626d49dfcce373de6b3daf"
+  },
+
+  "appsScript": {
+    "url": "https://script.google.com/macros/s/AKfycbztSsiZR66aSKzQk_Q8rGDlH2GLpQPObsDZXdEUT7cQEzKfWFOfmhCfPPV_47iUgE6L/exec"
+  },
+
+  "qr": {
+    "imagenBase64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADHElEQVR4nO2cQW7jMAxFH0cCspSBHqBHsW8wRyp6pLmBfZQeoIC9LCDjz0KSkxbddDq1g4RaCAjih1AoQVKfdE18eU2/vs6AQw455JBDDjl0m5DVFTHrVgNWs2GJMFnEhqU9MBxinkP7Q70kaQZpBqaubf0MQJAk6T20n3kO7Q8tNQCYdWBPLyfRK8P0+GYAmFk8zjyHDoOkl5OKH0zdj/6SQ9cJxQ+frf8DYomIxYAEYjnKPIcOg5KkEdDzY8aGJEHKaCSU6kFSPs48h3aDuKwYCaKfP9vaA70kjVd+Joe+A5WscSllpzcTvJkgA6wG6b3WfeVncuh/QZNF9NzVe4VZB0AQLBEblogNB5rn0C5QyxpJ5bqpEaglRKrpRGPKsIkSnjXuAJLm1WCJpVKgn4NsYLVSRwBoZLWDzHNo/9vnNICmxxytH9coALGcZABGqk9bP+5rnkOHQSlTYgQEMXWUDkdJGP1LpEiYR5nn0G5QiREGJ0F6jZq616h+XqNgjUZ6jVWhWh5ke5vn0O4Q2hb9XDtdRY3aKgqNm37lleXNQy1GpBlBjkbKkWkIMpaHLMgYxGwQWtq48jM59B2IFh6CmmId6mW0fpvr7bPfgonHiFuGOCeM0tzYXKCliUxNJ5Jcxb59aFOoakbQSJA0t23k3OQK7hF3ALVisf25z1tzC2qMGME7XXcAtfmINAPLQy7bZCFb7XmFbCRhpNf28JWfyaHvQO8qy5RrKXm+jI5sWSN5ZXlX0GpFmpzsJKZuNT0/Vj+wgSDva9wJdDlVN/3OkV4Ay6lORGzqJUXW3Nk8h46Cpi7IhuIHq7U2x6mEhzqGnTI2HGOeQ3tDrXrI2FBG61qGKC9tSCo55RjzHDpAjyhrm4lp87ZllSGJlL2vcT9QFSDaQN3TvJo0h/oaz2Wv/BDzHDpGxf54BZ25GK0rvuEK1R1CS6QVlZRocS40r8A8h34Y+vhOF73AIAApR6gVhYz05nrEHUCXPU1tWWPkPDtTC83aAvOscevQJ3eN/L4BSi0wNnnbPeKmIfP/TOaQQw455JBDDv0j9Bf95lulG6nQ9AAAAABJRU5ErkJggg=="
+  }
+}

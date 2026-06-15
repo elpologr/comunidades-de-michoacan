@@ -9,979 +9,7 @@
     <link rel="apple-touch-icon" href="imagenes/perfil.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        /* ─── VARIABLES ─── */
-        :root {
-            --bg: #f5f5f0;
-            --surface: #ffffff;
-            --border: #e0ddd6;
-            --text: #1a1a1a;
-            --text-soft: #666660;
-            --accent: #1a1a1a;
-            --accent2: #c8a96e;
-            --drawer-w: 280px;
-            --header-h: 220px;
-        }
-        body.dark {
-            --bg: #111110;
-            --surface: #1c1c1a;
-            --border: #2e2e2a;
-            --text: #f0ede8;
-            --text-soft: #888880;
-            --accent: #f0ede8;
-            --accent2: #c8a96e;
-        }
-
-        /* ─── RESET ─── */
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            transition: background 0.35s, color 0.35s;
-            overflow-x: hidden;
-        }
-
-        /* ─── DRAWER OVERLAY ─── */
-        #drawerOverlay {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 200;
-            backdrop-filter: blur(2px);
-        }
-        #drawerOverlay.open { display: block; }
-
-        /* ─── SIDEBAR DRAWER ─── */
-        #drawer {
-            position: fixed;
-            top: 0; left: 0;
-            width: var(--drawer-w);
-            height: 100%;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            z-index: 300;
-            transform: translateX(-100%);
-            transition: transform 0.32s cubic-bezier(.4,0,.2,1);
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            overflow: hidden;
-        }
-        #drawer.open { transform: translateX(0); }
-
-        .drawer-header {
-            background: var(--accent);
-            padding: 40px 24px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-        }
-        body.dark .drawer-header { background: #000; }
-
-        .drawer-avatar {
-            width: 72px; height: 72px;
-            border-radius: 50%;
-            border: 3px solid var(--accent2);
-            object-fit: cover;
-            background: #444;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        .drawer-avatar svg { width: 36px; height: 36px; fill: #aaa; }
-
-        .drawer-name {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 1px;
-            color: #fff;
-        }
-        .drawer-email { font-size: 12px; color: rgba(255,255,255,0.55); }
-
-        .drawer-close {
-            position: absolute; top: 14px; right: 14px;
-            background: none; border: none; cursor: pointer;
-            color: rgba(255,255,255,0.6);
-            font-size: 22px; line-height: 1;
-            padding: 4px;
-        }
-        .drawer-close:hover { color: #fff; }
-
-        .drawer-body { flex: 1; padding: 16px 12px; overflow-y: auto; }
-
-        .drawer-section-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-soft);
-            padding: 8px 12px 4px;
-        }
-
-        .drawer-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-            transition: background 0.2s;
-            border: none; background: none; width: 100%; text-align: left;
-        }
-        .drawer-item:hover { background: var(--border); }
-        .drawer-item svg { flex-shrink: 0; opacity: 0.7; }
-
-        .drawer-divider {
-            height: 1px; background: var(--border);
-            margin: 8px 14px;
-        }
-
-        /* Toggle switch */
-        .toggle-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 14px;
-            font-size: 14px; font-weight: 500;
-            color: var(--text);
-        }
-        .toggle-row span { display: flex; align-items: center; gap: 12px; }
-        .toggle {
-            width: 42px; height: 24px;
-            background: var(--border);
-            border-radius: 12px;
-            position: relative;
-            cursor: pointer;
-            transition: background 0.25s;
-            flex-shrink: 0;
-        }
-        .toggle.on { background: var(--accent2); }
-        .toggle::after {
-            content: '';
-            position: absolute;
-            top: 3px; left: 3px;
-            width: 18px; height: 18px;
-            background: #fff;
-            border-radius: 50%;
-            transition: left 0.25s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-        }
-        .toggle.on::after { left: 21px; }
-
-        /* ─── HEADER / BANNER ─── */
-        header {
-            background: linear-gradient(160deg, #0a1628 0%, #0d2044 40%, #102a58 70%, #0a1628 100%);
-            height: var(--header-h);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        /* Líneas horizontales tipo señal noticiosa */
-        header::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: repeating-linear-gradient(
-                180deg,
-                transparent,
-                transparent 6px,
-                rgba(255,255,255,0.025) 6px,
-                rgba(255,255,255,0.025) 7px
-            );
-        }
-        /* Barra diagonal de acento luminoso */
-        header::after {
-            content: '';
-            position: absolute; inset: 0;
-            background:
-                linear-gradient(105deg, transparent 30%, rgba(30,120,255,0.12) 50%, transparent 70%),
-                linear-gradient(to right, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
-        }
-        .header-content {
-            position: relative; z-index: 1;
-            text-align: center;
-        }
-        .header-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(48px, 10vw, 90px);
-            color: #ffffff;
-            letter-spacing: 4px;
-            line-height: 1;
-            text-shadow: 0 0 40px rgba(30,120,255,0.4), 0 2px 8px rgba(0,0,0,0.6);
-        }
-        .header-title span { color: #4da6ff; }
-        .header-sub {
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.4);
-            margin-top: 4px;
-        }
-
-        /* Botón perfil en esquina superior izquierda */
-        #btnPerfil {
-            position: fixed;
-            top: 16px; left: 20px;
-            background: rgba(10,22,40,0.75);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: #fff;
-            border-radius: 50%;
-            width: 44px; height: 44px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: background 0.2s, box-shadow 0.2s;
-            z-index: 1500;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
-        }
-        #btnPerfil:hover {
-            background: rgba(10,22,40,0.92);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.45);
-        }
-        #btnPerfil img {
-            width: 100%; height: 100%;
-            border-radius: 50%; object-fit: cover;
-            display: none;
-        }
-
-
-        /* ─── BOTÓN COMPARTIR ─── */
-        .social-btn-compartir {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            font-family: 'DM Sans', sans-serif;
-        }
-        .social-btn-compartir:hover { background: #333; border-color: #333; color: #fff; }
-        body.dark .social-btn-compartir { background: var(--accent2); border-color: var(--accent2); color: #111; }
-        body.dark .social-btn-compartir:hover { background: #b8993e; border-color: #b8993e; }
-
-        /* ─── MODAL QR ─── */
-        .modal-qr-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(6px);
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-qr-overlay.abierto { display: flex; }
-        .modal-qr-caja {
-            background: var(--surface, #fff);
-            border: 1px solid var(--border, #e0ddd6);
-            border-radius: 20px;
-            padding: 36px 28px 28px;
-            text-align: center;
-            box-shadow: 0 12px 48px rgba(0,0,0,0.35);
-            max-width: 320px;
-            width: 92%;
-            position: relative;
-            animation: qrSlideUp 0.3s cubic-bezier(.4,0,.2,1);
-        }
-        @keyframes qrSlideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.97); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @media (min-width: 768px) {
-            .modal-qr-caja { max-width: 520px; padding: 48px 56px 40px; }
-            .modal-qr-titulo { font-size: 1.4rem !important; }
-            #qrCanvas { width: 320px !important; height: 320px !important; }
-            .modal-qr-url { font-size: 0.85rem !important; }
-            .modal-qr-cerrar { width: 36px !important; height: 36px !important; top: 16px !important; right: 16px !important; }
-        }
-        .modal-qr-cerrar {
-            position: absolute; top: 12px; right: 12px;
-            background: var(--bg, #f5f5f0);
-            border: 1px solid var(--border, #e0ddd6);
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            font-size: 15px;
-            cursor: pointer;
-            color: var(--text-soft, #666);
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
-            font-family: inherit;
-        }
-        .modal-qr-cerrar:hover { background: var(--border, #e0ddd6); }
-        .modal-qr-titulo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3rem;
-            letter-spacing: 2px;
-            color: var(--text, #1a1a1a);
-            margin-bottom: 4px;
-        }
-        .modal-qr-sub { font-size: 0.82rem; color: var(--text-soft, #666); margin-bottom: 20px; }
-        #qrCanvas { border-radius: 12px; box-shadow: 0 2px 14px rgba(0,0,0,0.12); }
-        .modal-qr-url {
-            font-size: 0.72rem;
-            color: var(--text-soft, #666);
-            margin-top: 14px;
-            word-break: break-all;
-            background: var(--bg, #f5f5f0);
-            border: 1px solid var(--border, #e0ddd6);
-            border-radius: 8px;
-            padding: 6px 10px;
-        }
-        .btn-copiar-qr {
-            display: inline-flex; align-items: center; gap: 8px;
-            margin-top: 14px;
-            background: var(--accent, #1a1a1a);
-            color: #fff;
-            border: none; border-radius: 100px;
-            padding: 10px 24px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: background 0.2s, transform 0.15s;
-        }
-        .btn-copiar-qr:hover { background: #333; transform: translateY(-1px); }
-        body.dark .btn-copiar-qr { background: var(--accent2); color: #111; }
-        body.dark .btn-copiar-qr:hover { background: #b8993e; }
-
-        /* ─── BARRA DE REDES SOCIALES ─── */
-        .social-bar {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            transition: background 0.35s;
-        }
-
-        .social-btn {
-            display: flex; align-items: center; gap: 7px;
-            padding: 8px 16px;
-            border-radius: 100px;
-            border: 1.5px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .social-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-        .social-btn.contrataciones {
-            background: var(--accent2);
-            border-color: var(--accent2);
-            color: #fff;
-        }
-        .social-btn.contrataciones:hover { background: #b8993e; border-color: #b8993e; }
-        .social-btn.social-btn-whatsapp {
-            background: #25D366;
-            border-color: #25D366;
-            color: #fff;
-        }
-        .social-btn.social-btn-whatsapp:hover { background: #1ebe5d; border-color: #1ebe5d; }
-        .social-btn svg { flex-shrink: 0; }
-
-        /* ─── MAIN CONTAINER ─── */
-        .main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 32px 16px 60px;
-        }
-
-        /* ─── SITE TITLE ─── */
-        .site-title {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .site-title h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 36px;
-            letter-spacing: 3px;
-            color: var(--text);
-        }
-        .site-title hr {
-            border: none;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent2), transparent);
-            margin: 8px auto 0;
-            width: 200px;
-        }
-
-        /* ─── TABS ─── */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 32px;
-        }
-        .tab-btn {
-            padding: 11px 28px;
-            border-radius: 100px;
-            border: 1.5px solid var(--border);
-            background: var(--surface);
-            color: var(--text-soft);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-        }
-        .tab-btn:hover { border-color: var(--accent2); color: var(--text); }
-        .tab-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-        }
-        body.dark .tab-btn.active { background: var(--accent2); border-color: var(--accent2); color: #111; }
-
-        /* ─── SECTIONS ─── */
-        .section { display: none; }
-        .section.visible { display: block; animation: fadeIn 0.4s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ─── BIOGRAFÍA ─── */
-        .bio-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 36px 40px;
-            line-height: 1.75;
-        }
-        .bio-card p { color: var(--text); font-size: 15px; margin-bottom: 16px; }
-        .bio-card p:last-child { margin-bottom: 0; color: var(--text-soft); font-size: 13px; font-style: italic; }
-
-        /* ─── PATROCINADORES (placeholder) ─── */
-        .cv-placeholder {
-            background: var(--surface);
-            border: 1.5px dashed var(--border);
-            border-radius: 16px;
-            padding: 60px 40px;
-            text-align: center;
-            color: var(--text-soft);
-        }
-        .cv-placeholder svg { opacity: 0.3; margin-bottom: 16px; }
-        .cv-placeholder h3 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; margin-bottom: 8px; color: var(--text); }
-        .cv-placeholder p { font-size: 14px; }
-
-        /* ─── NOTICIAS ─── */
-        .noticias-estado {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-soft);
-            font-size: 14px;
-        }
-        .noticias-estado svg { opacity: 0.3; display: block; margin: 0 auto 12px; }
-
-        .noticias-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        /* Tarjeta de noticia */
-        .noticia-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.22s, box-shadow 0.22s;
-            display: flex;
-            flex-direction: column;
-        }
-        .noticia-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 32px rgba(0,0,0,0.12);
-        }
-        .noticia-card-img {
-            width: 100%;
-            aspect-ratio: 16/9;
-            object-fit: cover;
-            display: block;
-            background: var(--bg);
-        }
-        .noticia-card-img-placeholder {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: linear-gradient(135deg, #0a1628, #102a58);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: rgba(255,255,255,0.3);
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .noticia-card-img-placeholder svg { opacity: 0.25; }
-        .noticia-card-body {
-            padding: 16px 18px 18px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .noticia-card-meta {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .noticia-card-fecha {
-            font-size: 11px;
-            font-weight: 700;
-            color: #4da6ff;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .noticia-card-lugar {
-            font-size: 11px;
-            color: var(--text-soft);
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-        .noticia-card-titulo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 1px;
-            color: var(--text);
-            line-height: 1.2;
-        }
-        .noticia-card-desc {
-            font-size: 13px;
-            color: var(--text-soft);
-            line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            flex: 1;
-        }
-        .noticia-card-leer {
-            margin-top: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #4da6ff;
-            letter-spacing: 0.3px;
-        }
-
-        /* ── Modal de noticia completa ── */
-        #modalNoticia {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        #modalNoticia.visible { display: flex; }
-        .modal-noticia-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(4px);
-        }
-        .modal-noticia-box {
-            position: relative;
-            z-index: 1;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 680px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: fadeIn 0.3s ease;
-        }
-        .modal-noticia-media {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 20px 20px 0 0;
-            overflow: hidden;
-            position: relative;
-        }
-        .modal-noticia-media img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .modal-noticia-media iframe {
-            width: 100%; height: 100%;
-            border: none;
-        }
-        .modal-noticia-media-placeholder {
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #0a1628, #102a58);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,0.2);
-        }
-        .modal-noticia-content {
-            padding: 28px 32px 32px;
-        }
-        .modal-noticia-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .modal-noticia-fecha {
-            font-size: 12px;
-            font-weight: 700;
-            color: #4da6ff;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .modal-noticia-lugar {
-            font-size: 12px;
-            color: var(--text-soft);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .modal-noticia-titulo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 32px;
-            letter-spacing: 1.5px;
-            color: var(--text);
-            line-height: 1.15;
-            margin-bottom: 16px;
-        }
-        .modal-noticia-desc {
-            font-size: 15px;
-            color: var(--text);
-            line-height: 1.8;
-        }
-        .modal-noticia-cerrar {
-            position: absolute;
-            top: 14px; right: 14px;
-            background: rgba(0,0,0,0.45);
-            border: none;
-            border-radius: 50%;
-            width: 36px; height: 36px;
-            color: #fff;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 2;
-            transition: background 0.2s;
-        }
-        .modal-noticia-cerrar:hover { background: rgba(0,0,0,0.7); }
-
-        @media (max-width: 768px) {
-            .noticias-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 480px) {
-            .noticias-grid { grid-template-columns: 1fr; }
-            .modal-noticia-content { padding: 20px; }
-            .modal-noticia-titulo { font-size: 24px; }
-        }
-
-        /* ─── DRAWER: BOTÓN GOOGLE ─── */
-        .drawer-item-google {
-            display: flex; align-items: center; gap: 10px;
-            background: #fff !important;
-            color: #3c4043 !important;
-            border: 2px solid #e0e0e0 !important;
-            font-weight: 700;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }
-        .drawer-item-google:hover {
-            background: #f8f8f8 !important;
-            border-color: #4da6ff !important;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.13);
-        }
-        body.dark .drawer-item-google {
-            background: #1a2640 !important;
-            color: #e0e8f8 !important;
-            border-color: #2a3a5a !important;
-        }
-        .drawer-item-cerrar {
-            color: #c0392b !important;
-            opacity: 0.85;
-        }
-        .drawer-item-cerrar:hover { opacity: 1; background: #fff0f0 !important; }
-        body.dark .drawer-item-cerrar:hover { background: #2a1a1a !important; }
-
-        /* ─── MODAL AUTH GOOGLE ─── */
-        #modalGoogleAuth {
-            display: none; position: fixed; inset: 0; z-index: 99999;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        #modalGoogleAuth.abierto { display: flex; }
-        .modal-auth-caja {
-            background: #fff; border-radius: 20px; width: 100%; max-width: 360px;
-            padding: 36px 28px 28px; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
-            text-align: center; position: relative;
-        }
-        body.dark .modal-auth-caja { background: #0f1e36; }
-        .modal-auth-cerrar {
-            position: absolute; top: 14px; right: 14px;
-            background: #f0f4f8; border: none; width: 32px; height: 32px;
-            border-radius: 50%; font-size: 18px; cursor: pointer; color: #444;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .modal-auth-cerrar:hover { background: #dde4ec; }
-        body.dark .modal-auth-cerrar { background: #1a2a40; color: #aac; }
-        .modal-auth-logo { font-size: 42px; margin-bottom: 10px; }
-        .modal-auth-titulo {
-            font-size: 20px; font-weight: 700; color: #0a1628; margin: 0 0 6px;
-            font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px;
-        }
-        body.dark .modal-auth-titulo { color: #c8ddf8; }
-        .modal-auth-sub { font-size: 13px; color: #6a7f99; margin: 0 0 24px; }
-        .btn-google-auth {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; padding: 14px 20px; border-radius: 12px;
-            border: 2px solid #e0e0e0; background: #fff;
-            font-size: 15px; font-weight: 700; color: #3c4043; cursor: pointer;
-            transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .btn-google-auth:hover { background: #f5f8ff; border-color: #4285F4; box-shadow: 0 4px 14px rgba(66,133,244,0.18); }
-        body.dark .btn-google-auth { background: #1a2a40; border-color: #2a3a5a; color: #c8ddf8; }
-        .modal-auth-nota { font-size: 11px; color: #bbb; margin-top: 16px; }
-        .modal-auth-separador {
-            display: flex; align-items: center; gap: 10px;
-            margin: 14px 0;
-            color: #bbb; font-size: 12px;
-        }
-        .modal-auth-separador::before,
-        .modal-auth-separador::after {
-            content: ''; flex: 1;
-            height: 1px; background: #e0e0e0;
-        }
-        body.dark .modal-auth-separador::before,
-        body.dark .modal-auth-separador::after { background: #2a3a5a; }
-        .btn-facebook-auth {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; padding: 14px 20px; border-radius: 12px;
-            border: 2px solid #1877F2; background: #1877F2;
-            font-size: 15px; font-weight: 700; color: #fff; cursor: pointer;
-            transition: all 0.2s; box-shadow: 0 2px 8px rgba(24,119,242,0.18);
-        }
-        .btn-facebook-auth:hover { background: #1464d8; border-color: #1464d8; box-shadow: 0 4px 14px rgba(24,119,242,0.32); }
-        body.dark .btn-facebook-auth { background: #1a3a6a; border-color: #1877F2; color: #c8ddf8; }
-        body.dark .btn-facebook-auth:hover { background: #1877F2; color: #fff; }
-
-        /* ─── TOAST ─── */
-        #toast {
-            position: fixed; bottom: 28px; left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: var(--accent);
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 100px;
-            font-size: 13px; font-weight: 500;
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        body.dark #toast { background: var(--accent2); color: #111; }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ─── SUBMENÚ COMPARTIR ─── */
-        .compartir-wrap {
-            position: relative;
-            display: inline-flex;
-        }
-        .compartir-submenu {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 10px);
-            right: 0;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 12px 10px;
-            min-width: 200px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-            z-index: 9000;
-            animation: submenuFadeIn 0.2s cubic-bezier(.4,0,.2,1);
-        }
-        .compartir-submenu.abierto { display: block; }
-        @keyframes submenuFadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .compartir-titulo {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--text-soft);
-            padding: 0 6px 8px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 6px;
-        }
-        .compartir-opcion {
-            display: flex; align-items: center; gap: 10px;
-            width: 100%;
-            padding: 10px 8px;
-            border-radius: 9px;
-            border: none;
-            background: none;
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13.5px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.18s;
-            text-align: left;
-        }
-        .compartir-opcion:hover { background: var(--border); }
-        .compartir-opcion svg { flex-shrink: 0; opacity: 0.7; }
-
-        /* ─── PANEL ADMINISTRADOR ─── */
-        #modalPanelAdmin {
-            display: none;
-            position: fixed; inset: 0; z-index: 99998;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(6px);
-            align-items: center; justify-content: center;
-            padding: 16px;
-        }
-        #modalPanelAdmin.abierto { display: flex; }
-
-        .admin-panel-caja {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            width: 100%; max-width: 520px;
-            max-height: 92vh;
-            overflow-y: auto;
-            padding: 32px 28px 28px;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-        .admin-panel-titulo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 26px; letter-spacing: 2px;
-            color: var(--text); margin-bottom: 4px;
-        }
-        .admin-panel-sub {
-            font-size: 12px; color: var(--text-soft);
-            margin-bottom: 22px;
-        }
-        .admin-panel-cerrar {
-            position: absolute; top: 14px; right: 14px;
-            background: var(--bg); border: 1px solid var(--border);
-            border-radius: 50%; width: 32px; height: 32px;
-            font-size: 16px; cursor: pointer; color: var(--text-soft);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .admin-panel-cerrar:hover { background: var(--border); }
-
-        .admin-campo {
-            display: flex; flex-direction: column; gap: 6px;
-            margin-bottom: 16px;
-        }
-        .admin-campo label {
-            font-size: 11px; font-weight: 700;
-            letter-spacing: 1px; text-transform: uppercase;
-            color: var(--text-soft);
-        }
-        .admin-campo input,
-        .admin-campo textarea {
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            padding: 11px 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            color: var(--text);
-            outline: none;
-            transition: border-color 0.2s;
-            width: 100%;
-        }
-        .admin-campo input:focus,
-        .admin-campo textarea:focus { border-color: var(--accent2); }
-        .admin-campo textarea { min-height: 90px; resize: vertical; }
-
-        .admin-img-zona {
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            position: relative;
-        }
-        .admin-img-zona:hover { border-color: var(--accent2); background: var(--bg); }
-        .admin-img-zona input[type="file"] {
-            position: absolute; inset: 0;
-            opacity: 0; cursor: pointer; width: 100%; height: 100%;
-        }
-        .admin-img-zona svg { opacity: 0.35; margin-bottom: 8px; }
-        .admin-img-zona p { font-size: 13px; color: var(--text-soft); }
-        .admin-img-zona small { font-size: 11px; color: var(--text-soft); opacity: 0.7; }
-
-        #adminImgPreview {
-            display: none;
-            width: 100%; border-radius: 10px;
-            margin-top: 12px;
-            max-height: 200px; object-fit: cover;
-            border: 1px solid var(--border);
-        }
-
-        #adminStatus {
-            font-size: 12px; color: var(--text-soft);
-            min-height: 18px; margin-top: 10px;
-            word-break: break-all;
-        }
-
-        .btn-publicar-noticia {
-            width: 100%; padding: 14px;
-            background: var(--accent);
-            color: #fff;
-            border: none; border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px; font-weight: 700;
-            cursor: pointer; margin-top: 18px;
-            transition: background 0.2s, transform 0.15s;
-        }
-        .btn-publicar-noticia:hover:not(:disabled) { background: #333; transform: translateY(-1px); }
-        .btn-publicar-noticia:disabled { opacity: 0.6; cursor: not-allowed; }
-        body.dark .btn-publicar-noticia { background: var(--accent2); color: #111; }
-        body.dark .btn-publicar-noticia:hover:not(:disabled) { background: #b8993e; }
-
-        .admin-divider { height: 1px; background: var(--border); margin: 14px 0; }
-
-        /* Botón admin en drawer */
-        #panelAdminBtn {
-            display: none;
-            background: linear-gradient(135deg, #0a1628, #102a58) !important;
-            color: #4da6ff !important;
-            border: 1.5px solid rgba(77,166,255,0.3) !important;
-            font-weight: 700;
-        }
-        #panelAdminBtn:hover { background: #0d2044 !important; }
-        body.dark #panelAdminBtn { background: #0d2044 !important; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -1018,7 +46,6 @@
         <!-- Logueado -->
         <div id="drawerConSesion" style="display:none">
             <div class="drawer-section-label">Mi cuenta</div>
-            <!-- Botón admin — solo visible si el email coincide con ADMIN_EMAIL -->
             <button class="drawer-item" id="panelAdminBtn" onclick="togglePanelAdmin(); cerrarDrawer();" style="display:none">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 ✏️ Crear publicación
@@ -1053,7 +80,6 @@
         <h1 class="header-title">Comunidades de <span>Michoacán</span></h1>
         <p class="header-sub">Contenido · Creación · Comunidad</p>
     </div>
-    <!-- Botón perfil -->
     <button id="btnPerfil" onclick="abrirDrawer()" title="Perfil / Cuenta">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="8" r="4"/>
@@ -1063,63 +89,16 @@
     </button>
 </header>
 
-<!-- ── BARRA REDES SOCIALES ── -->
-<div class="social-bar">
-    <!-- 1. Contrataciones -->
-    <!-- 1. Contáctanos -->
-    <a class="social-btn contrataciones" href="mailto:comunidadesdemichoacan@gmail.com" title="Contáctanos">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        Contáctanos
-    </a>
-    <!-- 2. WhatsApp -->
-    <a class="social-btn social-btn-whatsapp" href="https://wa.me/524531119851" target="_blank" title="WhatsApp">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-        WhatsApp
-    </a>
-    <!-- 3. Facebook -->
-    <a class="social-btn" href="https://www.facebook.com/profile.php?id=100092362416144" target="_blank" title="Facebook">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-        Facebook
-    </a>
-    <!-- 3. Instagram -->
-    <a class="social-btn" href="https://www.instagram.com/comunidades_de_michoacan/" target="_blank" title="Instagram">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-        Instagram
-    </a>
-    <!-- 4. YouTube -->
-    <a class="social-btn" href="https://www.youtube.com/@COMUNIDADESDEMICHOACAN" target="_blank" title="YouTube">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
-        YouTube
-    </a>
-    <!-- 6. TikTok -->
-    <a class="social-btn" href="https://www.tiktok.com/@comunidades.de.mi0" target="_blank" title="TikTok">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.3a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V9.01a8.16 8.16 0 0 0 4.77 1.52V7.09a4.85 4.85 0 0 1-1.01-.4z"/></svg>
-        TikTok
-    </a>
-    <!-- 8. Compartir QR -->
-    <div class="compartir-wrap" id="compartirWrap">
-        <button class="social-btn social-btn-compartir" onclick="toggleSubMenuCompartir(event)" title="Compartir" id="btnCompartir">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Compartir
-        </button>
-        <div class="compartir-submenu" id="compartirSubmenu">
-            <div class="compartir-titulo">Comparte esta página</div>
-            <button class="compartir-opcion" onclick="copiarLinkDirecto()">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                <span id="copiarLinkTexto">Copiar enlace</span>
-            </button>
-            <button class="compartir-opcion" onclick="abrirModalQR(); cerrarSubMenuCompartir();">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
-                Ver código QR
-            </button>
-        </div>
-    </div>
+<!-- ── BARRA REDES SOCIALES (se construye desde config.json) ── -->
+<div class="social-bar" id="socialBar">
+    <!-- Las redes sociales se renderizan dinámicamente desde config.json -->
+    <!-- El botón Compartir se añade al final automáticamente -->
 </div>
 
 <!-- ═══ IMAGEN DE PERFIL ═══ -->
 <div style="display:flex; justify-content:center; align-items:center; padding:32px 16px 24px; background:var(--surface); border-bottom:1px solid var(--border);">
     <div style="width:400px; height:400px; max-width:85vw; max-height:85vw; border-radius:50%; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.13); border:3px solid var(--border); flex-shrink:0;">
-        <img src="imagenes/perfil.webp" alt="Comunidades de Michoacán" style="width:100%; height:100%; object-fit:cover; display:block;">
+        <img id="imgPerfil" src="imagenes/perfil.webp" alt="Comunidades de Michoacán" style="width:100%; height:100%; object-fit:cover; display:block;">
     </div>
 </div>
 
@@ -1128,7 +107,7 @@
 
     <!-- Título de la página -->
     <div class="site-title">
-        <h2>Comunidades de Michoacán</h2>
+        <h2 id="siteTitleText">Comunidades de Michoacán</h2>
         <hr>
     </div>
 
@@ -1143,9 +122,9 @@
     <div class="section" id="sec-bio">
         <div class="bio-card">
             <p><strong>👥 Quiénes somos</strong></p>
-            <p>Comunidades de Michoacán es una plataforma digital e independiente dedicada a la difusión, preservación y celebración de la riqueza cultural, histórica y social de los diversos rincones de nuestro estado. Somos un espacio de encuentro creado por y para la comunidad, con el firme propósito de dar voz a las tradiciones, el acontecer diario y los proyectos locales que definen la identidad de Michoacán. A través del contenido digital, buscamos tender puentes entre las regiones, impulsando la colaboración y el orgullo por nuestras raíces.</p>
+            <p id="bio-quienes"></p>
             <p><strong>📜 Nuestra historia</strong></p>
-            <p>Este proyecto nació de la inquietud de capturar y compartir la esencia viva de Michoacán: sus historias no contadas, sus paisajes y la fuerza de su gente. Lo que comenzó como una iniciativa para documentar las tradiciones locales ha evolucionado hasta convertirse en un canal de comunicación integral que conecta a miles de personas dentro y fuera del estado. A lo largo de nuestra trayectoria, hemos trabajado de la mano con creadores de contenido, líderes comunitarios y colaboradores locales para construir un archivo vivo y dinámico, consolidándonos como un referente de unión, difusión y pertenencia en toda la región.</p>
+            <p id="bio-historia"></p>
             <p id="fecha-hoy"></p>
         </div>
     </div>
@@ -1159,6 +138,7 @@
             </div>
         </div>
     </div>
+
     <!-- ── SECCIÓN: PATROCINADORES Y COLABORADORES ── -->
     <div class="section" id="sec-patrocinadores">
         <div class="cv-placeholder">
@@ -1195,40 +175,244 @@
 <!-- ── TOAST ── -->
 <div id="toast"></div>
 
+<!-- ══════════════════════════════════════════
+     MODAL QR — COMPARTIR
+══════════════════════════════════════════ -->
+<div class="modal-qr-overlay" id="modalQR">
+    <div class="modal-qr-caja">
+        <button class="modal-qr-cerrar" onclick="cerrarModalQR()">✕</button>
+        <div class="modal-qr-titulo">COMUNIDADES DE MICHOACÁN</div>
+        <p class="modal-qr-sub">Escanea para visitar <strong id="qrDominio"></strong></p>
+        <img id="qrImg" src="" alt="QR" style="width:200px;height:200px;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,0.12);display:block;margin:0 auto;">
+        <div class="modal-qr-url" id="qrUrl"></div>
+        <button class="btn-copiar-qr" onclick="copiarURLQR()" id="btnCopiarURL">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span id="btnCopiarTexto">Copiar enlace</span>
+        </button>
+    </div>
+</div>
+
+<!-- ── MODAL GOOGLE AUTH ── -->
+<div id="modalGoogleAuth">
+    <div class="modal-auth-caja">
+        <button class="modal-auth-cerrar" onclick="cerrarModalGoogle()">✕</button>
+        <div class="modal-auth-logo">📰</div>
+        <h2 class="modal-auth-titulo" id="authTitulo">Comunidades de Michoacán</h2>
+        <p class="modal-auth-sub">Inicia sesión para acceder a todas las funciones</p>
+        <button class="btn-google-auth" onclick="iniciarSesionGoogle()">
+            <svg width="20" height="20" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Continuar con Google
+        </button>
+        <div class="modal-auth-separador">o</div>
+        <button class="btn-facebook-auth" onclick="iniciarSesionFacebook()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+            Continuar con Facebook
+        </button>
+        <p class="modal-auth-nota">Al continuar aceptas los términos de uso</p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL PANEL ADMINISTRADOR
+══════════════════════════════════════════ -->
+<div id="modalPanelAdmin" onclick="if(event.target===this)cerrarPanelAdmin()">
+    <div class="admin-panel-caja">
+        <button class="admin-panel-cerrar" onclick="cerrarPanelAdmin()">✕</button>
+        <div class="admin-panel-titulo">📢 Nueva Noticia</div>
+        <div class="admin-panel-sub">La imagen se convertirá a .webp y se subirá a ImgBB automáticamente</div>
+
+        <div class="admin-campo">
+            <label>Título *</label>
+            <input type="text" id="adminTitulo" placeholder="Ej: Feria de San Isidro 2025">
+        </div>
+        <div class="admin-campo">
+            <label>Descripción</label>
+            <textarea id="adminDescripcion" placeholder="Escribe el cuerpo de la noticia aquí…"></textarea>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="admin-campo">
+                <label>Fecha</label>
+                <input type="text" id="adminFecha" placeholder="Ej: 15 JUN 2025">
+            </div>
+            <div class="admin-campo">
+                <label>Lugar</label>
+                <input type="text" id="adminLugar" placeholder="Ej: Morelia, Mich.">
+            </div>
+        </div>
+        <div class="admin-campo">
+            <label>Imagen (se convierte a .webp)</label>
+            <div class="admin-img-zona">
+                <input type="file" accept="image/*" onchange="previsualizarImagen(this)">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" display="block" style="margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+                <p>Haz clic o arrastra una imagen</p>
+                <small>JPG, PNG, GIF, WEBP — se convertirá a .webp</small>
+            </div>
+            <img id="adminImgPreview" src="" alt="Vista previa">
+        </div>
+        <div id="adminStatus"></div>
+        <div class="admin-divider"></div>
+        <button class="btn-publicar-noticia" id="btnPublicarNoticia" onclick="publicarNoticia()">
+            📢 Publicar noticia
+        </button>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
+
+<!-- ── SCRIPT PRINCIPAL ── -->
 <script>
-// ═══ FECHA DE HOY ═══
-(function() {
-    const hoy = new Date();
-    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('fecha-hoy').textContent =
-        hoy.toLocaleDateString('es-MX', opciones).replace(/^\w/, c => c.toUpperCase());
-})();
+// ═══════════════════════════════════════════════════════
+// CONFIGURACIÓN — se carga desde config.json
+// ═══════════════════════════════════════════════════════
+var CONFIG = {};
+
+// SVG icons para redes sociales
+var ICONOS_REDES = {
+    email:     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+    whatsapp:  '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>',
+    facebook:  '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+    instagram: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>',
+    youtube:   '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>',
+    tiktok:    '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.3a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V9.01a8.16 8.16 0 0 0 4.77 1.52V7.09a4.85 4.85 0 0 1-1.01-.4z"/></svg>'
+};
+
+// ── Carga config.json y arranca la app ──
+fetch('config.json')
+    .then(function(r) { return r.json(); })
+    .then(function(cfg) {
+        CONFIG = cfg;
+        inicializarApp();
+    })
+    .catch(function(err) {
+        console.error('[Config] No se pudo cargar config.json:', err);
+        // Fallback: intenta arrancar con valores vacíos
+        inicializarApp();
+    });
+
+function inicializarApp() {
+    aplicarConfigSitio();
+    renderizarRedesSociales();
+    aplicarBiografia();
+    mostrarFechaHoy();
+    cargarNoticias();
+}
+
+// ── Aplica nombre del sitio, imagen de perfil, etc. ──
+function aplicarConfigSitio() {
+    var s = CONFIG.sitio || {};
+    if (s.nombre) {
+        document.title = s.nombre;
+        var tEl = document.querySelector('.header-title');
+        if (tEl) tEl.innerHTML = s.nombre.replace('Michoacán', '<span>Michoacán</span>');
+        var stEl = document.getElementById('siteTitleText');
+        if (stEl) stEl.textContent = s.nombre;
+        var dNEl = document.getElementById('drawerNombre');
+        if (dNEl) dNEl.textContent = s.nombre;
+        var aEl = document.getElementById('authTitulo');
+        if (aEl) aEl.textContent = s.nombre;
+    }
+    if (s.subtitulo) {
+        var subEl = document.querySelector('.header-sub');
+        if (subEl) subEl.textContent = s.subtitulo;
+    }
+    if (s.imagenPerfil) {
+        var imgEl = document.getElementById('imgPerfil');
+        if (imgEl) { imgEl.src = s.imagenPerfil; imgEl.alt = s.nombre || ''; }
+    }
+    // QR
+    var qr = CONFIG.qr || {};
+    if (qr.imagenBase64) {
+        var qrImg = document.getElementById('qrImg');
+        if (qrImg) qrImg.src = qr.imagenBase64;
+    }
+    if (s.dominio) {
+        var qrDom = document.getElementById('qrDominio');
+        var qrUrl = document.getElementById('qrUrl');
+        if (qrDom) qrDom.textContent = s.dominio;
+        if (qrUrl) qrUrl.textContent = s.dominio;
+    }
+}
+
+// ── Renderiza la barra de redes sociales desde config ──
+function renderizarRedesSociales() {
+    var bar = document.getElementById('socialBar');
+    if (!bar) return;
+    bar.innerHTML = '';
+
+    var redes = (CONFIG.redesSociales || []);
+    redes.forEach(function(red) {
+        var a = document.createElement('a');
+        a.className = 'social-btn' + (red.clases ? ' ' + red.clases : '');
+        a.href = red.url || '#';
+        a.title = red.nombre;
+        if (!red.url.startsWith('mailto:')) a.target = '_blank';
+        a.innerHTML = (ICONOS_REDES[red.icono] || '') + red.nombre;
+        bar.appendChild(a);
+    });
+
+    // Botón Compartir (siempre al final)
+    var compartirWrap = document.createElement('div');
+    compartirWrap.className = 'compartir-wrap';
+    compartirWrap.id = 'compartirWrap';
+    compartirWrap.innerHTML =
+        '<button class="social-btn social-btn-compartir" onclick="toggleSubMenuCompartir(event)" title="Compartir" id="btnCompartir">' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' +
+            'Compartir' +
+        '</button>' +
+        '<div class="compartir-submenu" id="compartirSubmenu">' +
+            '<div class="compartir-titulo">Comparte esta página</div>' +
+            '<button class="compartir-opcion" onclick="copiarLinkDirecto()">' +
+                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+                '<span id="copiarLinkTexto">Copiar enlace</span>' +
+            '</button>' +
+            '<button class="compartir-opcion" onclick="abrirModalQR(); cerrarSubMenuCompartir();">' +
+                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>' +
+                'Ver código QR' +
+            '</button>' +
+        '</div>';
+    bar.appendChild(compartirWrap);
+}
+
+// ── Aplica textos de biografía ──
+function aplicarBiografia() {
+    var bio = CONFIG.biografia || {};
+    var qEl = document.getElementById('bio-quienes');
+    var hEl = document.getElementById('bio-historia');
+    if (qEl && bio.quienesSomos) qEl.textContent = bio.quienesSomos;
+    if (hEl && bio.historia) hEl.textContent = bio.historia;
+}
+
+// ─── FECHA DE HOY ───
+function mostrarFechaHoy() {
+    var hoy = new Date();
+    var opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    var el = document.getElementById('fecha-hoy');
+    if (el) el.textContent = hoy.toLocaleDateString('es-MX', opciones).replace(/^\w/, function(c) { return c.toUpperCase(); });
+}
 
 // Cargar noticias al inicio (sección por defecto)
-window.addEventListener('DOMContentLoaded', function() { cargarNoticias(); });
+window.addEventListener('DOMContentLoaded', function() {
+    // Si config ya cargó antes del DOMContentLoaded, la carga ya ocurrió.
+    // Este listener es un fallback de seguridad.
+});
 
-// ═══ SISTEMA DE NOTICIAS DESDE GOOGLE SHEETS ═══
-// 🔧 CONFIGURACIÓN — URL pública de "Publicar en la web" (CSV directo, más confiable):
-var NOTICIAS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRL_WNt8GFeoRwMtKRVlTTO6OQignlfONFaT87I5RyBFrVaPTXoPxDo6labvgV0IXS0IX3QZYGWI5Fn/pub?gid=0&single=true&output=csv';
-// COLUMNAS ESPERADAS (fila 1 = encabezados, datos desde fila 2):
-//   A(0): Titulo Noticia
-//   B(1): Descripcion Noticia
-//   C(2): fecha
-//   D(3): lugar
-//   E(4): Link  (URL directa de imagen, o enlace de YouTube / Facebook / Instagram)
-//   F(5): Imagen/Video — el cliente escribe:
-//           "imagen" → post de Facebook con foto  (usa plugins/post.php)
-//           "video"  → video de Facebook o YouTube (usa plugins/video.php / embed YT)
-//           (Instagram y URLs de imagen directa se detectan solos por la URL)
-//   G(6): Publicar en Facebook/Instagram — "si" o "no"
-//           "si" → muestra el embed de FB/IG en la web
-//           "no" → la noticia aparece en la web pero SIN embed (solo placeholder)
-
+// ═══════════════════════════════════════════════════════
+// SISTEMA DE NOTICIAS DESDE GOOGLE SHEETS
+// ═══════════════════════════════════════════════════════
 var listaNoticias = [];
+var _noticiasYaCargadas = true;
 
 // ── Parser robusto: detecta automáticamente si el separador es TAB o coma ──
 function parsearCSVNoticias(texto) {
-    // Detectar separador: si la primera línea tiene más tabs que comas, es TSV
     var primeraLinea = texto.split('\n')[0] || '';
     var sep = (primeraLinea.split('\t').length > primeraLinea.split(',').length) ? '\t' : ',';
 
@@ -1262,9 +446,7 @@ function parsearCSVNoticias(texto) {
     return lineas;
 }
 
-// ── Detecta y construye el objeto de media según URL, tipo declarado y flag de publicar ──
-// tipo:     'imagen' → post FB con foto  |  'video' → video FB/YT  |  '' → auto-detectar
-// publicar: 'si' o 'no' — si es 'no', los embeds de FB/IG se suprimen en la web
+// ── Detecta y construye el objeto de media ──
 function detectarMedia(url, tipoDeclarado, publicar) {
     url = (url || '').trim().replace(/^"+|"+$/g, '');
     tipoDeclarado = (tipoDeclarado || '').trim().toLowerCase();
@@ -1272,64 +454,40 @@ function detectarMedia(url, tipoDeclarado, publicar) {
 
     if (!url) return { tipo: 'ninguno', url: '' };
 
-    // ── YouTube (siempre embed, independiente del tipo declarado) ──
     var ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     if (ytMatch) return { tipo: 'youtube', url: 'https://www.youtube.com/embed/' + ytMatch[1] };
 
-    // ── Facebook ──
     if (url.includes('facebook.com')) {
-        if (!mostrarEmbed) {
-            // El cliente marcó "no" → no mostrar embed de FB, solo placeholder con ícono FB
-            return { tipo: 'facebook-oculto', url: '' };
-        }
+        if (!mostrarEmbed) return { tipo: 'facebook-oculto', url: '' };
         if (tipoDeclarado === 'video') {
-            // Video de Facebook
-            return {
-                tipo: 'facebook',
-                url: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&autoplay=false'
-            };
+            return { tipo: 'facebook', url: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&autoplay=false' };
         } else {
-            // "imagen" o cualquier otro valor → post con imagen (plugins/post.php)
-            return {
-                tipo: 'facebook',
-                url: 'https://www.facebook.com/plugins/post.php?href=' + encodeURIComponent(url) + '&show_text=true&width=500'
-            };
+            return { tipo: 'facebook', url: 'https://www.facebook.com/plugins/post.php?href=' + encodeURIComponent(url) + '&show_text=true&width=500' };
         }
     }
 
-    // ── Instagram ──
     var igMatch = url.match(/instagram\.com\/(p|reel|tv)\/([^/?#]+)/);
     if (igMatch) {
-        if (!mostrarEmbed) {
-            return { tipo: 'instagram-oculto', url: '' };
-        }
-        return {
-            tipo: 'instagram',
-            url: 'https://www.instagram.com/' + igMatch[1] + '/' + igMatch[2] + '/embed/'
-        };
+        if (!mostrarEmbed) return { tipo: 'instagram-oculto', url: '' };
+        return { tipo: 'instagram', url: 'https://www.instagram.com/' + igMatch[1] + '/' + igMatch[2] + '/embed/' };
     }
 
-    // ── URL directa de imagen ──
     return { tipo: 'imagen', url: url };
 }
 
-// ── Convierte filas CSV/TSV en objetos de noticia ──
-// IMPORTANTE: todas las noticias se muestran en la web siempre.
-// La columna G (publicar en FB/IG) solo afecta si se muestra el embed de redes sociales,
-// pero NUNCA oculta la noticia de la página web.
+// ── Convierte filas CSV en objetos de noticia ──
 function csvANoticias(filas) {
     if (filas.length < 2) return [];
     var noticias = [];
     for (var i = 1; i < filas.length; i++) {
         var f = filas[i];
         var get = function(idx) { return ((f[idx] || '')).trim().replace(/^"+|"+$/g, ''); };
-        if (!get(0)) continue; // saltar filas completamente vacías
+        if (!get(0)) continue;
         noticias.push({
             titulo:      get(0),
             descripcion: get(1),
             fecha:       get(2),
             lugar:       get(3),
-            // E(4)=link, F(5)=imagen/video, G(6)=publicar en FB/IG (solo afecta embed)
             media:       detectarMedia(get(4), get(5), get(6))
         });
     }
@@ -1340,27 +498,23 @@ function csvANoticias(filas) {
 function buildModalMedia(media) {
     var el = document.getElementById('modalNoticiMedia');
     el.innerHTML = '';
+    var placeholder = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>';
+
     if (media.tipo === 'imagen' && media.url) {
         var img = document.createElement('img');
         img.src = media.url;
         img.alt = 'Imagen de la noticia';
-        img.onerror = function() { el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>'; };
+        img.onerror = function() { el.innerHTML = placeholder; };
         el.appendChild(img);
     } else if (media.tipo === 'youtube' || media.tipo === 'facebook' || media.tipo === 'instagram') {
         var iframe = document.createElement('iframe');
         iframe.src = media.url;
         iframe.setAttribute('allowfullscreen', '');
         iframe.setAttribute('loading', 'lazy');
-        if (media.tipo === 'facebook') {
-            iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share');
-        }
+        if (media.tipo === 'facebook') iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share');
         el.appendChild(iframe);
-    } else if (media.tipo === 'facebook-oculto') {
-        el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.25"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>';
-    } else if (media.tipo === 'instagram-oculto') {
-        el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.25"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>';
     } else {
-        el.innerHTML = '<div class="modal-noticia-media-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>';
+        el.innerHTML = placeholder;
     }
 }
 
@@ -1378,11 +532,10 @@ function abrirModalNoticia(n) {
 
 function cerrarModalNoticia() {
     document.getElementById('modalNoticia').classList.remove('visible');
-    document.getElementById('modalNoticiMedia').innerHTML = ''; // detiene video
+    document.getElementById('modalNoticiMedia').innerHTML = '';
     document.body.style.overflow = '';
 }
 
-// Cerrar con Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') cerrarModalNoticia();
 });
@@ -1403,7 +556,6 @@ function renderizarNoticias(noticias) {
         card.className = 'noticia-card';
         card.onclick = function() { abrirModalNoticia(n); };
 
-        // Zona de imagen / placeholder según tipo de media
         var mediaZone = '';
         if (n.media.tipo === 'imagen' && n.media.url) {
             mediaZone = '<img class="noticia-card-img" src="' + n.media.url + '" alt="' + n.titulo + '" onerror="this.outerHTML=\'<div class=\\\"noticia-card-img-placeholder\\\"><svg width=\\\"32\\\" height=\\\"32\\\" viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\" stroke=\\\"currentColor\\\" stroke-width=\\\"1.5\\\"><rect x=\\\"3\\\" y=\\\"3\\\" width=\\\"18\\\" height=\\\"18\\\" rx=\\\"3\\\"/><circle cx=\\\"9\\\" cy=\\\"9\\\" r=\\\"2\\\"/><path d=\\\"m21 15-5-5L5 21\\\"/></svg><span>SIN IMAGEN</span></div>\'">';
@@ -1435,7 +587,9 @@ function renderizarNoticias(noticias) {
 
 // ── Carga las noticias desde Google Sheets (CSV público) ──
 function cargarNoticias() {
-    var csvUrl = NOTICIAS_CSV_URL;
+    var csvUrl = (CONFIG.noticias || {}).csvUrl;
+    if (!csvUrl) return;
+
     var grid = document.getElementById('noticiasGrid');
     if (grid) grid.innerHTML = '<div class="noticias-estado"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Cargando noticias…</div>';
 
@@ -1456,8 +610,6 @@ function cargarNoticias() {
 }
 
 // Cargar al presionar el tab de Noticias (lazy load)
-var _noticiasYaCargadas = true; // se carga al inicio
-var _tabOriginal = typeof mostrarSeccion === 'function' ? mostrarSeccion : null;
 mostrarSeccion = function(id, btn) {
     document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('visible'); });
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -1481,46 +633,27 @@ function cerrarDrawer() {
 
 // ═══ MODO OSCURO ═══
 function toggleModoOscuro() {
-    const body = document.body;
-    const toggle = document.getElementById('toggleOscuro');
+    var body = document.body;
+    var toggle = document.getElementById('toggleOscuro');
     body.classList.toggle('dark');
     toggle.classList.toggle('on');
     localStorage.setItem('epn-dark', body.classList.contains('dark') ? '1' : '0');
 }
-
-// Aplicar preferencia guardada
 if (localStorage.getItem('epn-dark') === '1') {
     document.body.classList.add('dark');
     document.getElementById('toggleOscuro').classList.add('on');
 }
 
 // ═══ TOAST ═══
-let toastTimer;
+var toastTimer;
 function mostrarToast(msg) {
-    const t = document.getElementById('toast');
+    var t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+    toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2600);
 }
-</script>
 
-<!-- ═══ MODAL QR — COMPARTIR ═══ -->
-<div class="modal-qr-overlay" id="modalQR">
-    <div class="modal-qr-caja">
-        <button class="modal-qr-cerrar" onclick="cerrarModalQR()">✕</button>
-        <div class="modal-qr-titulo">COMUNIDADES DE MICHOACÁN</div>
-        <p class="modal-qr-sub">Escanea para visitar <strong>comunidadesdemichoacan.com</strong></p>
-        <img id="qrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADHElEQVR4nO2cQW7jMAxFH0cCspSBHqBHsW8wRyp6pLmBfZQeoIC9LCDjz0KSkxbddDq1g4RaCAjih1AoQVKfdE18eU2/vs6AQw455JBDDjl0m5DVFTHrVgNWs2GJMFnEhqU9MBxinkP7Q70kaQZpBqaubf0MQJAk6T20n3kO7Q8tNQCYdWBPLyfRK8P0+GYAmFk8zjyHDoOkl5OKH0zdj/6SQ9cJxQ+frf8DYomIxYAEYjnKPIcOg5KkEdDzY8aGJEHKaCSU6kFSPs48h3aDuKwYCaKfP9vaA70kjVd+Joe+A5WscSllpzcTvJkgA6wG6b3WfeVncuh/QZNF9NzVe4VZB0AQLBEblogNB5rn0C5QyxpJ5bqpEaglRKrpRGPKsIkSnjXuAJLm1WCJpVKgn4NsYLVSRwBoZLWDzHNo/9vnNICmxxytH9coALGcZABGqk9bP+5rnkOHQSlTYgQEMXWUDkdJGP1LpEiYR5nn0G5QiREGJ0F6jZq616h+XqNgjUZ6jVWhWh5ke5vn0O4Q2hb9XDtdRY3aKgqNm37lleXNQy1GpBlBjkbKkWkIMpaHLMgYxGwQWtq48jM59B2IFh6CmmId6mW0fpvr7bPfgonHiFuGOCeM0tzYXKCliUxNJ5Jcxb59aFOoakbQSJA0t23k3OQK7hF3ALVisf25z1tzC2qMGME7XXcAtfmINAPLQy7bZCFb7XmFbCRhpNf28JWfyaHvQO8qy5RrKXm+jI5sWSN5ZXlX0GpFmpzsJKZuNT0/Vj+wgSDva9wJdDlVN/3OkV4Ay6lORGzqJUXW3Nk8h46Cpi7IhuIHq7U2x6mEhzqGnTI2HGOeQ3tDrXrI2FBG61qGKC9tSCo55RjzHDpAjyhrm4lp87ZllSGJlL2vcT9QFSDaQN3TvJo0h/oaz2Wv/BDzHDpGxf54BZ25GK0rvuEK1R1CS6QVlZRocS40r8A8h34Y+vhOF73AIAApR6gVhYz05nrEHUCXPU1tWWPkPDtTC83aAvOscevQJ3eN/L4BSi0wNnnbPeKmIfP/TOaQQw455JBDDv0j9Bf95lulG6nQ9AAAAABJRU5ErkJggg==" alt="QR comunidadesdemichoacan.com" style="width:200px;height:200px;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,0.12);display:block;margin:0 auto;">
-        <div class="modal-qr-url">comunidadesdemichoacan.com</div>
-        <button class="btn-copiar-qr" onclick="copiarURLQR()" id="btnCopiarURL">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-            <span id="btnCopiarTexto">Copiar enlace</span>
-        </button>
-    </div>
-</div>
-
-<script>
 // ═══ SUBMENÚ COMPARTIR ═══
 function toggleSubMenuCompartir(e) {
     e.stopPropagation();
@@ -1528,31 +661,26 @@ function toggleSubMenuCompartir(e) {
     menu.classList.toggle('abierto');
 }
 function cerrarSubMenuCompartir() {
-    document.getElementById('compartirSubmenu').classList.remove('abierto');
+    var el = document.getElementById('compartirSubmenu');
+    if (el) el.classList.remove('abierto');
 }
 document.addEventListener('click', function(e) {
     var wrap = document.getElementById('compartirWrap');
     if (wrap && !wrap.contains(e.target)) cerrarSubMenuCompartir();
 });
 
-// ═══ MODAL QR — COMPARTIR ═══
-// El QR es una imagen estática que apunta a comunidadesdemichoacan.com (dominio permanente).
-// El botón "Copiar enlace" copia la URL actual de la página.
-
+// ═══ MODAL QR ═══
 function abrirModalQR() {
     document.getElementById('modalQR').classList.add('abierto');
     document.body.style.overflow = 'hidden';
 }
-
 function cerrarModalQR() {
     document.getElementById('modalQR').classList.remove('abierto');
     document.body.style.overflow = '';
 }
-
 document.getElementById('modalQR').addEventListener('click', function(e) {
     if (e.target === this) cerrarModalQR();
 });
-
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') cerrarModalQR();
 });
@@ -1600,33 +728,6 @@ function copiarLinkDirecto() {
 }
 </script>
 
-<!-- ── MODAL GOOGLE AUTH ── -->
-<div id="modalGoogleAuth">
-    <div class="modal-auth-caja">
-        <button class="modal-auth-cerrar" onclick="cerrarModalGoogle()">✕</button>
-        <div class="modal-auth-logo">📰</div>
-        <h2 class="modal-auth-titulo">Comunidades de Michoacán</h2>
-        <p class="modal-auth-sub">Inicia sesión para acceder a todas las funciones</p>
-        <button class="btn-google-auth" onclick="iniciarSesionGoogle()">
-            <svg width="20" height="20" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-            Continuar con Google
-        </button>
-        <div class="modal-auth-separador">o</div>
-        <button class="btn-facebook-auth" onclick="iniciarSesionFacebook()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-            </svg>
-            Continuar con Facebook
-        </button>
-        <p class="modal-auth-nota">Al continuar aceptas los términos de uso</p>
-    </div>
-</div>
-
 <!-- ── FIREBASE SDK (módulos ES via CDN) ── -->
 <script type="module">
 import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1636,16 +737,21 @@ import { getAuth, GoogleAuthProvider, FacebookAuthProvider,
          getRedirectResult, signOut,
          onAuthStateChanged }                   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// ─── FIREBASE CONFIG ───
-const firebaseConfig = {
-    apiKey:            "AIzaSyC57dBidDG4Dx2_9XrIeuB-hJN6oKg38wM",
-    authDomain:        "comunidades-de-michoacan.firebaseapp.com",
-    projectId:         "comunidades-de-michoacan",
-    storageBucket:     "comunidades-de-michoacan.firebasestorage.app",
-    messagingSenderId: "137003078065",
-    appId:             "1:137003078065:web:391c14d3e2c9138a52ad90",
-    measurementId:     "G-2B1XNZ19EB"
-};
+// ── Espera a que CONFIG esté disponible ──
+async function esperarConfig(intentos) {
+    intentos = intentos || 0;
+    if (window.CONFIG && window.CONFIG.firebase) return window.CONFIG;
+    if (intentos > 30) throw new Error('Config no disponible');
+    return new Promise(function(res) {
+        setTimeout(function() { res(esperarConfig(intentos + 1)); }, 100);
+    });
+}
+
+var cfg = await esperarConfig();
+var firebaseConfig = cfg.firebase;
+var ADMIN_EMAILS   = cfg.administradores || [];
+var IMGBB_API_KEY  = (cfg.imgbb || {}).apiKey || '';
+var APPS_SCRIPT_URL = (cfg.appsScript || {}).url || '';
 
 const app            = initializeApp(firebaseConfig);
 const analytics      = getAnalytics(app);
@@ -1653,28 +759,9 @@ const auth           = getAuth(app);
 const providerGoogle   = new GoogleAuthProvider();
 const providerFacebook = new FacebookAuthProvider();
 
-// ─── EMAIL DEL ADMINISTRADOR ───
-// ⚠️ Cambia esto por el email de tu cuenta de Google con la que inicias sesión
-// ─── EMAILS DE ADMINISTRADORES ───
-const ADMIN_EMAILS = [
-    "comunidadesdemichoacan@gmail.com",
-    "dulceprincesa086@gmail.com"
-];
-const ADMIN_EMAIL = ADMIN_EMAILS[0]; // compatibilidad
-
-// ─── IMGBB API KEY ───
-// Obtén tu API key gratis en: https://api.imgbb.com/
-const IMGBB_API_KEY = "1fe0257b2f626d49dfcce373de6b3daf";
-
-// ─── GOOGLE APPS SCRIPT URL ───
-// URL de tu Apps Script desplegado como Web App (ver instrucciones al final)
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztSsiZR66aSKzQk_Q8rGDlH2GLpQPObsDZXdEUT7cQEzKfWFOfmhCfPPV_47iUgE6L/exec";
-
-// ─── MODAL ───
+// ─── MODAL AUTH ───
 function abrirModalGoogle()  { document.getElementById('modalGoogleAuth').classList.add('abierto'); }
 function cerrarModalGoogle() { document.getElementById('modalGoogleAuth').classList.remove('abierto'); }
-
-// Exponer funciones globales para onclick en HTML
 window.abrirModalGoogle  = abrirModalGoogle;
 window.cerrarModalGoogle = cerrarModalGoogle;
 
@@ -1682,26 +769,15 @@ window.cerrarModalGoogle = cerrarModalGoogle;
 async function iniciarSesionGoogle() {
     try {
         await signInWithPopup(auth, providerGoogle);
-        cerrarModalGoogle();
-        cerrarDrawer();
+        cerrarModalGoogle(); cerrarDrawer();
     } catch (e) {
         console.error('[Auth]', e.code, e.message);
         if (['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) {
-            try {
-                mostrarToast('⏳ Redirigiendo para iniciar sesión…');
-                await signInWithRedirect(auth, providerGoogle);
-            } catch (e2) { mostrarToast('No se pudo iniciar sesión. Intenta de nuevo.'); }
+            try { mostrarToast('⏳ Redirigiendo…'); await signInWithRedirect(auth, providerGoogle); } catch (e2) { mostrarToast('No se pudo iniciar sesión.'); }
             return;
         }
-        if (e.code === 'auth/unauthorized-domain') {
-            mostrarToast('❌ Dominio no autorizado. Contacta al administrador.');
-            console.warn('Agrega este dominio en Firebase Console → Authentication → Authorized domains:', window.location.hostname);
-            return;
-        }
-        if (e.code === 'auth/operation-not-allowed') {
-            mostrarToast('❌ Login con Google no habilitado. Contacta al administrador.');
-            return;
-        }
+        if (e.code === 'auth/unauthorized-domain') { mostrarToast('❌ Dominio no autorizado.'); return; }
+        if (e.code === 'auth/operation-not-allowed') { mostrarToast('❌ Login con Google no habilitado.'); return; }
         mostrarToast('Error al iniciar sesión (' + (e.code || 'desconocido') + ')');
     }
 }
@@ -1711,48 +787,30 @@ window.iniciarSesionGoogle = iniciarSesionGoogle;
 async function iniciarSesionFacebook() {
     try {
         await signInWithPopup(auth, providerFacebook);
-        cerrarModalGoogle();
-        cerrarDrawer();
+        cerrarModalGoogle(); cerrarDrawer();
     } catch (e) {
         console.error('[Auth Facebook]', e.code, e.message);
         if (['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) {
-            try {
-                mostrarToast('⏳ Redirigiendo para iniciar sesión…');
-                await signInWithRedirect(auth, providerFacebook);
-            } catch (e2) { mostrarToast('No se pudo iniciar sesión. Intenta de nuevo.'); }
+            try { mostrarToast('⏳ Redirigiendo…'); await signInWithRedirect(auth, providerFacebook); } catch (e2) { mostrarToast('No se pudo iniciar sesión.'); }
             return;
         }
-        if (e.code === 'auth/unauthorized-domain') {
-            mostrarToast('❌ Dominio no autorizado. Contacta al administrador.');
-            return;
-        }
-        if (e.code === 'auth/operation-not-allowed') {
-            mostrarToast('❌ Login con Facebook no habilitado. Actívalo en Firebase Console.');
-            return;
-        }
-        if (e.code === 'auth/account-exists-with-different-credential') {
-            mostrarToast('⚠️ Ya existe una cuenta con ese email. Intenta con Google.');
-            return;
-        }
+        if (e.code === 'auth/unauthorized-domain') { mostrarToast('❌ Dominio no autorizado.'); return; }
+        if (e.code === 'auth/operation-not-allowed') { mostrarToast('❌ Login con Facebook no habilitado.'); return; }
+        if (e.code === 'auth/account-exists-with-different-credential') { mostrarToast('⚠️ Ya existe una cuenta con ese email. Intenta con Google.'); return; }
         mostrarToast('Error al iniciar sesión (' + (e.code || 'desconocido') + ')');
     }
 }
 window.iniciarSesionFacebook = iniciarSesionFacebook;
 
-// ─── MANEJAR REDIRECT (móvil / Safari) ───
+// ─── REDIRECT (móvil / Safari) ───
 getRedirectResult(auth).then(result => {
     if (result && result.user) { cerrarModalGoogle(); cerrarDrawer(); }
 }).catch(e => {
-    if (e.code && e.code !== 'auth/no-auth-event') {
-        console.error('[Redirect]', e.code, e.message);
-        mostrarToast('Error al completar sesión (' + e.code + ')');
-    }
+    if (e.code && e.code !== 'auth/no-auth-event') mostrarToast('Error al completar sesión (' + e.code + ')');
 });
 
 // ─── CERRAR SESIÓN ───
-function cerrarSesion() {
-    signOut(auth).then(() => mostrarToast('Sesión cerrada'));
-}
+function cerrarSesion() { signOut(auth).then(() => mostrarToast('Sesión cerrada')); }
 window.cerrarSesion = cerrarSesion;
 
 // ─── ACTUALIZAR UI SEGÚN ESTADO DE SESIÓN ───
@@ -1764,6 +822,7 @@ function actualizarEstadoSesionDrawer(user) {
     const avatarWrap = document.getElementById('drawerAvatarWrap');
     const btnImg     = document.getElementById('btnPerfilImg');
     const panelAdmin = document.getElementById('panelAdminBtn');
+    const sitioNombre = (window.CONFIG && window.CONFIG.sitio) ? window.CONFIG.sitio.nombre : 'Comunidades de Michoacán';
 
     if (user) {
         noSesion.style.display  = 'none';
@@ -1772,32 +831,24 @@ function actualizarEstadoSesionDrawer(user) {
         email.textContent  = user.email || '';
         if (user.photoURL) {
             if (btnImg) { btnImg.src = user.photoURL; btnImg.style.display = 'block'; }
-            if (avatarWrap) {
-                avatarWrap.innerHTML = '<img src="' + user.photoURL + '" alt="avatar" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.3);">';
-            }
+            if (avatarWrap) avatarWrap.innerHTML = '<img src="' + user.photoURL + '" alt="avatar" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.3);">';
         }
-        // Mostrar botón admin solo si es el administrador
         if (panelAdmin) panelAdmin.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none';
     } else {
         noSesion.style.display  = 'block';
         conSesion.style.display = 'none';
-        nombre.textContent = 'Comunidades de Michoacán';
+        nombre.textContent = sitioNombre;
         email.textContent  = 'Inicia sesión para acceder';
         if (btnImg) { btnImg.style.display = 'none'; btnImg.src = ''; }
         if (avatarWrap) avatarWrap.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
         if (panelAdmin) panelAdmin.style.display = 'none';
     }
 }
-
-// Escuchar cambios de sesión en tiempo real
 onAuthStateChanged(auth, user => actualizarEstadoSesionDrawer(user));
 
-// ══════════════════════════════════════════════════════
-// ─── PANEL DE ADMINISTRADOR ───
-// ══════════════════════════════════════════════════════
-
-// Convierte un archivo de imagen a .webp usando Canvas
-function convertirAWebp(file, calidad = 0.85) {
+// ═══ PANEL DE ADMINISTRADOR ═══
+function convertirAWebp(file, calidad) {
+    calidad = calidad || 0.85;
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = e => {
@@ -1820,44 +871,31 @@ function convertirAWebp(file, calidad = 0.85) {
     });
 }
 
-// Sube un Blob a ImgBB y devuelve la URL directa de la imagen
 async function subirAImgBB(blob, nombre) {
     const form = new FormData();
     form.append('image', blob, nombre || 'imagen.webp');
-    const resp = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: 'POST', body: form
-    });
+    const resp = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, { method: 'POST', body: form });
     const data = await resp.json();
     if (!data.success) throw new Error(data.error?.message || 'Error subiendo a ImgBB');
-    return data.data.display_url; // URL directa de la imagen
+    return data.data.display_url;
 }
 
-// Guarda la noticia en Google Sheets via Apps Script
 async function guardarEnSheets(noticia) {
-    const resp = await fetch(APPS_SCRIPT_URL, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(noticia)
-    });
+    const resp = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(noticia) });
     const data = await resp.json();
     if (data.status !== 'ok') throw new Error(data.message || 'Error al guardar en Sheets');
     return data;
 }
 
-// Preview de imagen antes de subir
 window.previsualizarImagen = function(input) {
     const preview = document.getElementById('adminImgPreview');
     const file = input.files[0];
     if (!file) { preview.style.display = 'none'; return; }
     const reader = new FileReader();
-    reader.onload = e => {
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-    };
+    reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
     reader.readAsDataURL(file);
 };
 
-// Publicar noticia
 window.publicarNoticia = async function() {
     const titulo      = document.getElementById('adminTitulo').value.trim();
     const descripcion = document.getElementById('adminDescripcion').value.trim();
@@ -1868,15 +906,12 @@ window.publicarNoticia = async function() {
     const statusEl    = document.getElementById('adminStatus');
 
     if (!titulo) { mostrarToast('⚠️ El título es obligatorio'); return; }
-
     btnPublicar.disabled = true;
     btnPublicar.textContent = '⏳ Publicando…';
     statusEl.textContent = '';
 
     try {
         let imgUrl = '';
-
-        // Si hay imagen, convertir a .webp y subir a ImgBB
         if (fileInput.files && fileInput.files[0]) {
             statusEl.textContent = '🔄 Convirtiendo imagen a .webp…';
             const webpBlob = await convertirAWebp(fileInput.files[0]);
@@ -1885,25 +920,13 @@ window.publicarNoticia = async function() {
             statusEl.textContent = '✅ Imagen subida: ' + imgUrl;
         }
 
-        // Fecha de hoy si no se proporcionó
         const fechaFinal = fecha || new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
-
-        // Guardar en Google Sheets
         statusEl.textContent = '📋 Guardando en la hoja de cálculo…';
-        await guardarEnSheets({
-            titulo,
-            descripcion,
-            fecha:   fechaFinal,
-            lugar,
-            link:    imgUrl,
-            tipo:    imgUrl ? 'imagen' : '',
-            publicar: 'no'
-        });
+        await guardarEnSheets({ titulo, descripcion, fecha: fechaFinal, lugar, link: imgUrl, tipo: imgUrl ? 'imagen' : '', publicar: 'no' });
 
         statusEl.textContent = '🎉 ¡Noticia publicada correctamente!';
         mostrarToast('✅ Noticia publicada');
 
-        // Limpiar formulario
         document.getElementById('adminTitulo').value      = '';
         document.getElementById('adminDescripcion').value = '';
         document.getElementById('adminFecha').value       = '';
@@ -1911,13 +934,11 @@ window.publicarNoticia = async function() {
         fileInput.value = '';
         document.getElementById('adminImgPreview').style.display = 'none';
 
-        // Recargar noticias automáticamente
         _noticiasYaCargadas = false;
         if (document.getElementById('sec-noticias').classList.contains('visible')) {
             _noticiasYaCargadas = true;
             cargarNoticias();
         }
-
     } catch (err) {
         console.error('[Admin]', err);
         statusEl.textContent = '❌ Error: ' + err.message;
@@ -1938,67 +959,7 @@ window.cerrarPanelAdmin = function() {
     document.getElementById('modalPanelAdmin').classList.remove('abierto');
     document.body.style.overflow = '';
 };
-
 </script>
-
-<!-- ══════════════════════════════════════════
-     MODAL PANEL ADMINISTRADOR
-══════════════════════════════════════════ -->
-<div id="modalPanelAdmin" onclick="if(event.target===this)cerrarPanelAdmin()">
-    <div class="admin-panel-caja">
-        <button class="admin-panel-cerrar" onclick="cerrarPanelAdmin()">✕</button>
-        <div class="admin-panel-titulo">📢 Nueva Noticia</div>
-        <div class="admin-panel-sub">La imagen se convertirá a .webp y se subirá a ImgBB automáticamente</div>
-
-        <!-- Título -->
-        <div class="admin-campo">
-            <label>Título *</label>
-            <input type="text" id="adminTitulo" placeholder="Ej: Feria de San Isidro 2025">
-        </div>
-
-        <!-- Descripción -->
-        <div class="admin-campo">
-            <label>Descripción</label>
-            <textarea id="adminDescripcion" placeholder="Escribe el cuerpo de la noticia aquí…"></textarea>
-        </div>
-
-        <!-- Fecha y Lugar en fila -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <div class="admin-campo">
-                <label>Fecha</label>
-                <input type="text" id="adminFecha" placeholder="Ej: 15 JUN 2025">
-            </div>
-            <div class="admin-campo">
-                <label>Lugar</label>
-                <input type="text" id="adminLugar" placeholder="Ej: Morelia, Mich.">
-            </div>
-        </div>
-
-        <!-- Imagen -->
-        <div class="admin-campo">
-            <label>Imagen (se convierte a .webp)</label>
-            <div class="admin-img-zona">
-                <input type="file" accept="image/*" onchange="previsualizarImagen(this)">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" display="block" style="margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-                <p>Haz clic o arrastra una imagen</p>
-                <small>JPG, PNG, GIF, WEBP — se convertirá a .webp</small>
-            </div>
-            <img id="adminImgPreview" src="" alt="Vista previa">
-        </div>
-
-        <!-- Estado -->
-        <div id="adminStatus"></div>
-
-        <div class="admin-divider"></div>
-
-        <!-- Botón publicar -->
-        <button class="btn-publicar-noticia" id="btnPublicarNoticia" onclick="publicarNoticia()">
-            📢 Publicar noticia
-        </button>
-
-
-    </div>
-</div>
 
 </body>
 </html>
